@@ -122,3 +122,7 @@ def jwt_verify(token):
     except jwt.InvalidTokenError:
         return False
     return True
+
+@app.errorhandler(404)
+def not_found(e):
+    return render_template('404.html')
