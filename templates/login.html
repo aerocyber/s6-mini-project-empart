@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Login - Secure Emergency Patient Record Transfer</title>
+        <link rel="stylesheet" href="/static/login.css" />
+    </head>
+    <body>
+        <div class="login-box">
+            <h2>Login</h2>
+            <form id="login-form" method="post" action="/signin">
+                <div class="form-group">
+                    <label for="id">Email ID</label>
+                    <input type="email" id="id" name="email" required />
+                </div>
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input
+                        type="password"
+                        id="password"
+                        name="password"
+                        required
+                    />
+                </div>
+                <button type="submit">Login</button>
+                <p class="signup-link">
+                    Don't have an account? <a href="/signup">Sign Up</a>
+                </p>
+            </form>
+        </div>
+
+        <footer>
+            <p>
+                &copy; 2025 Secure Emergency Patient Record Transfer. All rights
+                reserved. | <a href="#privacy">Privacy Policy</a>
+            </p>
+        </footer>
+    </body>
+</html>

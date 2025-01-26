@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Signup</title>
+        <link rel="stylesheet" href="/static/signup.css" />
+    </head>
+    <body>
+        <div class="signup-box">
+            <h2>Signup</h2>
+            <!-- Form sends data to signup_process.php -->
+            <form action="/signup" method="POST">
+                <input
+                    type="email"
+                    name="email"
+                    placeholder="Email ID"
+                    required
+                    minlength="5"
+                    maxlength="20"
+                />
+                <input
+                    type="text"
+                    name="name"
+                    placeholder="Name"
+                    required
+                    minlength="3"
+                    maxlength="50"
+                />
+                <input
+                    type="password"
+                    name="password"
+                    placeholder="Password"
+                    required
+                    minlength="8"
+                />
+
+                <input type="submit" value="Submit" />
+            </form>
+        </div>
+        <footer>
+            <p>
+                &copy; 2025 Secure Emergency Patient Record Transfer. All rights
+                reserved. | <a href="#privacy">Privacy Policy</a>
+            </p>
+        </footer>
+    </body>
+</html>
