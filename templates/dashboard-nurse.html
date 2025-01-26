@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nurse Dashboard - Emergency Patient Record Transfer</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+        .header {
+            background-color: #6084cc;
+            color: rgb(162, 202, 240);
+            padding: 15px 20px;
+            text-align: center;
+        }
+        .container {
+            display: flex;
+            justify-content: space-between;
+            padding: 20px;
+        }
+        /* Reduced width for the Profile Section */
+        .profile-section {
+            width: 30%; /* smaller size for profile */
+            background-color: rgb(186, 191, 228);
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Larger width for Send Record and Receive Record Sections */
+        .section {
+            width: 65%; /* bigger size for these sections */
+            background-color: rgb(186, 191, 228);
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        h2 {
+            color: #333;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        .notification {
+            display: none;
+            padding: 10px;
+            background-color: #4CAF50;
+            color: white;
+            border-radius: 5px;
+            margin-top: 20px;
+            text-align: center;
+            cursor: pointer;
+        }
+        .records {
+            margin-top: 20px;
+            display: none;
+        }
+        .record {
+            padding: 10px;
+            background-color: #f1f1f1;
+            margin-bottom: 10px;
+            border-radius: 5px;
+        }
+        .record p {
+            margin: 5px 0;
+        }
+
+        /* Profile Section Styles */
+        .profile-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 20px;
+        }
+        .profile-photo {
+            border-radius: 50%;
+            width: 100px;
+            height: 100px;
+            object-fit: cover;
+        }
+        .profile-info {
+            margin-top: 15px;
+            text-align: center;
+        }
+        .profile-info h3 {
+            margin: 5px 0;
+        }
+        .profile-info p {
+            color: #777;
+        }
+        .profile-settings {
+            margin-top: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+        }
+        .profile-settings button {
+            width: 180px;
+            background-color: #2196F3;
+        }
+        .profile-settings button:hover {
+            background-color: #1976D2;
+        }
+
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>EmPaRT - Nurse Dashboard</h1>
+    </div>
+
+    <div class="container">
+        <!-- Profile Section -->
+        <div class="profile-section">
+            <div class="profile-container">
+                <!-- Profile photo from local images folder -->
+                <img src="https://i.pinimg.com/564x/32/9c/61/329c618b57c3a60b8a2954719d750db3.jpg" alt="Nurse Photo" class="profile-photo">
+                <div class="profile-info">
+                    <h3>Jane Doe</h3>
+                    <p>Registered Nurse at XYZ Hospital</p>
+                    <p>Experience: 5 years</p>
+                </div>
+                <div class="profile-settings">
+                    <button>Profile</button>
+                    <button>Medical Bills</button>
+                    <button>Settings</button>
+                    <button>Logout</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Send Record Section -->
+        <div class="section">
+            <h2>Send Patient Record</h2>
+            <form id="sendForm">
+                <label for="patientId">Patient ID:</label><br>
+                <input type="text" id="patientId" name="patientId" required><br><br>
+                
+                <label for="patientName">Patient Name:</label><br>
+                <input type="text" id="patientName" name="patientName" required><br><br>
+                
+                <label for="medicalRecords">Medical Records:</label><br>
+                <textarea id="medicalRecords" name="medicalRecords" required></textarea><br><br>
+
+                <label for="currentSituation">Current Situation:</label><br>
+                <textarea id="currentSituation" name="currentSituation" required></textarea><br><br>
+                
+                <label for="hospitalTo">Destination Hospital:</label><br>
+                <input type="text" id="hospitalTo" name="hospitalTo" required><br><br>
+
+                <button type="submit">Send Record</button>
+            </form>
+
+            <div id="sendNotification" class="notification">
+                Record sent successfully!
+            </div>
+        </div>
+
+        <!-- Receive Record Section -->
+        <div class="section">
+            <h2>Received Patient Records</h2>
+            <div id="receivedRecords" class="records">
+                <div class="record">
+                    <p><strong>Patient ID:</strong> 12345</p>
+                    <p><strong>Patient Name:</strong> John Doe</p>
+                    <p><strong>Medical Records:</strong> Asthma, Hypertension</p>
+                    <p><strong>Current Situation:</strong> Shortness of breath, high BP</p>
+                    <p><strong>Destination Hospital:</strong> ABC Hospital</p>
+                </div>
+                <div class="record">
+                    <p><strong>Patient ID:</strong> 67890</p>
+                    <p><strong>Patient Name:</strong> Jane Smith</p>
+                    <p><strong>Medical Records:</strong> Diabetes, Stroke</p>
+                    <p><strong>Current Situation:</strong> Unconscious, low glucose</p>
+                    <p><strong>Destination Hospital:</strong> XYZ Hospital</p>
+                </div>
+            </div>
+
+            <div id="receiveNotification" class="notification">
+                New patient record received! Click to view.
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Notification for sending record
+        document.getElementById("sendForm").addEventListener("submit", function(event) {
+            event.preventDefault();
+
+            // Show notification after sending record
+            document.getElementById("sendNotification").style.display = "block";
+
+            // Hide notification after 3 seconds
+            setTimeout(function() {
+                document.getElementById("sendNotification").style.display = "none";
+            }, 3000);
+        });
+
+        // Function to simulate receiving a new patient record
+        function receiveNewRecord() {
+            // Simulate receiving a new record by dynamically adding it to the list
+            var newRecord = document.createElement("div");
+            newRecord.classList.add("record");
+            newRecord.innerHTML = `\
+                <p><strong>Patient ID:</strong> 11223</p>\ 
+                <p><strong>Patient Name:</strong> Alice Brown</p>\
+                <p><strong>Medical Records:</strong> Broken leg, fever</p>\
+                <p><strong>Current Situation:</strong> In pain, feverish</p>\
+                <p><strong>Destination Hospital:</strong> DEF Hospital</p>\
+            `;
+            document.getElementById("receivedRecords").appendChild(newRecord);
+
+            // Show notification when a new record is received
+            document.getElementById("receiveNotification").style.display = "block";
+        }
+
+        // Simulate receiving a new record after 5 seconds
+        setTimeout(receiveNewRecord, 5000);
+
+        // Toggle visibility of received records when the notification is clicked
+        document.getElementById("receiveNotification").addEventListener("click", function() {
+            var receivedRecords = document.getElementById("receivedRecords");
+            if (receivedRecords.style.display === "none" || receivedRecords.style.display === "") {
+                receivedRecords.style.display = "block";  // Show the received records
+            } else {
+                receivedRecords.style.display = "none";   // Hide the received records
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, make_response, flash
+from flask import Flask, render_template, request, redirect, make_response, url_for
 from werkzeug.security import generate_password_hash, check_password_hash
 from dotenv import load_dotenv
 from os import getenv
@@ -38,6 +38,8 @@ app = Flask(__name__)
 
 @app.route('/')
 def home_route():
+    if jwt_verify(request.cookies.get('userlogin')):
+        return render_template('dashboard-nurse.html') # TODO: Use roles to change dashboard views
     return render_template('index.html')
 
 @app.route('/about')
@@ -50,7 +52,7 @@ def login_route():
     _u = request.cookies.get("userlogin")
     if _u:
         if jwt_verify(_u):
-            return redirect('/') # TODO: Change to dashboard
+            return redirect(url_for('/'))
     if request.method == 'POST':
         # Login Logic
         username = request.form['email']
@@ -67,7 +69,7 @@ def login_route():
         print(ulogin) # FIXME: Remove this line
 
         # resp = make_response(redirect('/')) # TODO: Make it dashboard
-        resp = make_response("Logged In")
+        resp = make_response(redirect(url_for('home_route')))
         resp.set_cookie('userlogin', ulogin, expires=datetime.datetime.now() + datetime.timedelta(days=30))
 
         return resp
@@ -80,15 +82,16 @@ def register_route():
     if request.method == "POST":
         username = request.form["email"]
         password = request.form["password"]
-        role = request.form["user-role"]
+        # role = request.form["user-role"] # 
         # TODO: Validation
         pswd = generate_password_hash(password)
         records = collection["authdb"].find()
         for i in records:
-            if i["Email"] == username:
+            if i["email"] == username:
                 return "This email has already been registered", 403
 
-        collection["authdb"].insert_one({"email": username.lower(), "password": pswd, "role": role})
+        # collection["authdb"].insert_one({"email": username.lower(), "password": pswd, "role": role})
+        collection["authdb"].insert_one({"email": username.lower(), "password": pswd})
     return render_template("signup.html")
 
 @app.route('/logout')
