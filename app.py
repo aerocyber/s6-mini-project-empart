@@ -66,7 +66,6 @@ def login_route():
 
         # flash("Login successful!")
         ulogin = jwt_forge(username)
-        print(ulogin) # FIXME: Remove this line
 
         # resp = make_response(redirect('/')) # TODO: Make it dashboard
         resp = make_response(redirect(url_for('home_route')))
@@ -92,6 +91,7 @@ def register_route():
 
         # collection["authdb"].insert_one({"email": username.lower(), "password": pswd, "role": role})
         collection["authdb"].insert_one({"email": username.lower(), "password": pswd})
+        return redirect('/signin')
     return render_template("signup.html")
 
 @app.route('/logout')
