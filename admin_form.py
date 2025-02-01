@@ -31,8 +31,12 @@ def index():
 def admin_login():
     # Login logic
     if request.method == 'POST':
+        if (request.cookies.get('Auth') and request.cookies.get('JWT')) and request.cookies.get('username'):
+            if verify_jwt_token(request.cookies.get('JWT')) and verify_auth_token(request.cookies.get('Auth')):
+                return redirect('/')
+            return redirect('/logout')
         
-        username = request.form['username']
+        username = request.form['email']
         password = request.form['password']
         db = get_db()
         user = db.admins.find_one({"email": username})
@@ -60,6 +64,7 @@ def admin_logout():
     resp = make_response(redirect('/'))
     resp.delete_cookie('Auth')
     resp.delete_cookie('JWT')
+    resp.delete_cookie('username')
     return resp
 
 # Add hospital
@@ -67,7 +72,7 @@ def admin_logout():
 @admin_routing.route('/add_hospital', methods=['POST', 'GET'])
 def add_hospital():
     if request.method == 'GET':
-        if request.cookies.get('Auth'):
+        if request.cookies.get('Auth') and request.cookies.get('username'):
             if verify_jwt_token(request.cookies.get('JWT')) and verify_auth_token(request.cookies.get('Auth')):
                 return render_template('add_hospital.html')
             return redirect('/logout')
@@ -93,7 +98,7 @@ def add_hospital():
 @admin_routing.route('/delete_hospital', methods=['POST', 'GET'])
 def delete_hospital():
     if request.method == 'GET':
-        if request.cookies.get('Auth'):
+        if request.cookies.get('Auth') and request.cookies.get('username'):
             if verify_jwt_token(request.cookies.get('JWT')) and verify_auth_token(request.cookies.get('Auth')):
                 return render_template('delete_hospital.html')
             return redirect('/logout')
