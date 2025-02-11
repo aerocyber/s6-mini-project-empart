@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hospital Login</title>
+    <style>
+        body {
+            background-image: url('https://i.pinimg.com/736x/05/3e/d0/053ed029ae7832cf07a776ed719ff164.jpg');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .form-container {
+            background-color: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            max-width: 400px;
+            width: 100%;
+            text-align: center;
+        }
+
+        header {
+            background-color: #6FD6DB;
+            color: white;
+            text-align: center;
+            padding: 20px;
+            width: 100%;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+        }
+
+        header h1 {
+            margin: 0;
+            font-size: 2.8em;
+            font-weight: bold;
+        }
+
+        label {
+            display: block;
+            text-align: left;
+            font-size: 1.1em;
+            color: #333;
+            font-weight: 600;
+            margin-top: 10px;
+        }
+
+        input[type="email"],
+        input[type="password"] {
+            padding: 12px;
+            font-size: 1.1em;
+            width: 90%;
+            border: 2px solid #ccc;
+            border-radius: 6px;
+            transition: border-color 0.3s ease;
+            margin-top: 5px;
+        }
+
+        input[type="email"]:focus,
+        input[type="password"]:focus {
+            border-color: #6FD6DB;
+            outline: none;
+        }
+
+        button[type="submit"] {
+            background-color: #6FD6DB;
+            color: white;
+            padding: 15px;
+            border: none;
+            border-radius: 6px;
+            font-size: 1.1em;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            margin-top: 15px;
+            width: 100%;
+        }
+
+        button[type="submit"]:hover {
+            background-color: #0056b3;
+            transform: scale(1.05);
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>EmPaRT</h1>
+    </header>
+
+    <div class="form-container">
+        <h2>Hospital Login</h2>
+        <form action="/hospital/login" method="POST">
+            <label for="username">Username:</label>
+            <input type="email" id="username" name="email" required>
+
+            <label for="password">Password:</label>
+            <input type="password" id="password" name="password" required>
+
+            <button type="submit">Login</button>
+        </form>
+    </div>
+</body>
+</html>

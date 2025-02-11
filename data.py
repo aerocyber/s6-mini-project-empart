@@ -24,3 +24,10 @@ def get_db():
     if 'db' not in g:
         g.db = connect_to_database()
     return g.db
+
+
+def encrypt_record(record): # TODO: Implement encryption
+    return record
+
+def decrypt_record(record): # TODO: Implement decryption
+    return record

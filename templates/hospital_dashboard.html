@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hospital Emergency Record Transfer</title>
+    <style>
+        /* General Styles */
+        body {
+            background-image: url('https://i.pinimg.com/736x/05/3e/d0/053ed029ae7832cf07a776ed719ff164.jpg');
+            background-size: cover;
+            background-position: 0 0;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            animation: moveBackground 60s linear infinite;
+        }
+
+        /* Keyframes for moving the background */
+        @keyframes moveBackground {
+            0% {
+                background-position: 0 0;
+            }
+            100% {
+                background-position: 100% 100%;
+            }
+        }
+
+        header {
+            background-color: #6FD6DB;
+            color: white;
+            text-align: center;
+            padding: 20px;
+            width: 100%;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+        }
+
+        header h1 {
+            margin: 0;
+            font-size: 2.8em;
+            font-weight: bold;
+        }
+
+        nav {
+            background-color: #333;
+            width: 100%;
+            position: fixed;
+            top: 90px;
+            left: 0;
+            right: 0;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            z-index: 999;
+        }
+
+        nav ul {
+            list-style-type: none;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+        }
+
+        nav ul li {
+            margin: 15px;
+        }
+
+        nav ul li a {
+            color: white;
+            text-decoration: none;
+            font-size: 1.2em;
+            font-weight: 600;
+            padding: 8px 20px;
+            transition: background-color 0.3s ease;
+        }
+
+        nav ul li a:hover {
+            background-color: #444;
+            border-radius: 4px;
+        }
+
+        .form-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            height: 100vh;
+            margin-top: 120px;
+        }
+
+        section {
+            padding: 30px;
+            margin: 20px;
+            border-radius: 10px;
+            background-color: white;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 600px;
+            transition: transform 0.3s ease;
+            text-align: center;
+        }
+
+        section:hover {
+            transform: scale(1.02);
+        }
+
+        h2 {
+            font-size: 2.2em;
+            color: #6FD6DB;
+            margin-bottom: 15px;
+        }
+
+        p {
+            font-size: 1.2em;
+            color: #6FD6DB;
+        }
+
+        form {
+            display: grid;
+            gap: 20px;
+            width: 100%;
+        }
+
+        label {
+            font-size: 1.1em;
+            color: #333;
+            font-weight: 600;
+        }
+
+        input[type="text"],
+        input[type="password"] {
+            padding: 12px;
+            font-size: 1.1em;
+            width: 100%;
+            border: 2px solid #ccc;
+            border-radius: 6px;
+            transition: border-color 0.3s ease;
+        }
+
+        input[type="text"]:focus,
+        input[type="password"]:focus {
+            border-color: #6FD6DB;
+            outline: none;
+        }
+
+        button[type="submit"] {
+            background-color:  #6FD6DB;
+            color: white;
+            padding: 15px;
+            border: none;
+            border-radius: 6px;
+            font-size: 1.1em;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+        }
+
+        button[type="submit"]:hover {
+            background-color: #0056b3;
+            transform: scale(1.05);
+        }
+
+        button[type="submit"]:active {
+            background-color: #00408d;
+        }
+
+        img {
+            border-radius: 10px;
+            max-width: 100%;
+            height: auto;
+        }
+
+        /* Full-width Dashboard */
+        #dashboard {
+            display: block; /* Initially show the dashboard */
+            padding: 40px 450px 40px 450px;
+            background: rgba(235, 226, 226, 0.6);
+            color: rgb(100, 99, 99);
+            width: 400%;
+            margin-top: 5%;
+            box-sizing: content-box;
+            text-align: center;
+            position: relative;
+            backdrop-filter: blur(8px);
+            z-index: 500;
+        }
+
+
+        @media (max-width: 768px) {
+            nav ul {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            section {
+                margin: 130px 10px 20px 10px;
+                padding: 20px;
+                width: 100%;
+            }
+
+            h2 {
+                font-size: 1.8em;
+            }
+
+            button[type="submit"] {
+                padding: 12px;
+                font-size: 1em;
+            }
+
+            #dashboard {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>EmPaRT</h1>
+    </header>
+
+    <nav>
+        <ul>
+            <li><a href="javascript:void(0);" onclick="showSection('dashboard')">Dashboard</a></li>
+            <li><a href="javascript:void(0);" onclick="showSection('hospital-profile')">Hospital Profile</a></li>
+            <li><a href="javascript:void(0);" onclick="showSection('staff')">Add Staff</a></li>
+            <li><a href="javascript:void(0);" onclick="showSection('key-pair')">Key Pair Management</a></li>
+            <li><a href="hospitall.html" >Log-out </a></li>
+        </ul>
+    </nav>
+
+    <!-- Dashboard Section -->
+    <section id="dashboard">
+        <h2>Dashboard</h2>
+        <p>Welcome to the emergency record transfer system.</p>
+        <div>
+            <h3>Key Statistics</h3>
+            <ul>
+                <li>Total Patients: 1,245</li>
+                <li>Active Staff: 78</li>
+                <li>Pending Requests: 12</li>
+                <li>Recent Transfers: 5</li>
+            </ul>
+        </div>
+    </section>
+
+    <!-- Hospital Profile Section -->
+    <div class="form-container">
+        <section id="hospital-profile">
+            <h2>Hospital Profile</h2>
+            <!-- Hospital Profile Picture -->
+            <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSgu4XwvoYGYxtYGq-PV57qAw0FAFFFcGimpw&s" alt="Hospital Profile Picture" style="border-radius: 50%; width: 150px; height: 150px; object-fit: cover;">
+            <p>Hospital Name: <strong>ABC Hospital</strong></p>
+            <p>Location: <strong>kottayam</strong></p>
+            <p>Phone No: <strong>+91 0000004720</strong></p>
+            <p>Email: <strong>abchospital@gmail.com</strong></p>
+        </section>
+    </div>
+
+    <!-- Key Pair Management Section -->
+    <div class="form-container">
+        <section id="key-pair">
+            <h2>Key Pair Management</h2>
+            <form>
+                <label for="public-key">Add Public Key:</label>
+                <input type="text" id="public-key" name="public-key" required>
+
+                <label for="private-key">Add Private Key:</label>
+                <input type="text" id="private-key" name="private-key" required>
+
+                <button type="submit">Save Keys</button>
+            </form>
+        </section>
+    </div>
+
+    <!-- Add Staff Section -->
+    <div class="form-container">
+        <section id="staff">
+            <h2>Add Staff</h2>
+            <form>
+                <label for="first-name">First Name:</label>
+                <input type="text" id="first-name" name="first-name" required>
+
+                <label for="last-name">Last Name:</label>
+                <input type="text" id="last-name" name="last-name" required>
+
+                <label for="phone">Phone Number:</label>
+                <input type="text" id="phone" name="phone" required>
+
+                <label for="unique-id">Unique ID:</label>
+                <input type="text" id="unique-id" name="unique-id" required>
+
+                <label for="default-password">Password:</label>
+                <input type="password" id="default-password" name="default-password" required>
+
+                <button type="submit">Add Staff</button>
+            </form>
+        </section>
+    </div>
+
+    <script>
+        function showSection(sectionId) {
+            // Hide all sections
+            let sections = document.querySelectorAll('section');
+            sections.forEach(function(section) {
+                section.style.display = 'none';
+            });
+
+            // Show the selected section
+            let selectedSection = document.getElementById(sectionId);
+            selectedSection.style.display = 'block';
+        }
+
+        // By default, show the Dashboard section
+        showSection('dashboard');
+    </script>
+
+</body>
+</html>
