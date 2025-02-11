@@ -1,7 +1,7 @@
 from pymongo import MongoClient
 from os import environ
 from dotenv import load_dotenv
-from werkzeug.security import generate_password_hash
+from werkzeug.security import generate_password_hash, check_password_hash
 
 load_dotenv()
 
@@ -58,6 +58,9 @@ class HospitalDB:
     def get_count(self):
         return self.hospital_pub.count_documents({})
     
+    def check_password(self, hospital_id, pswd):
+        return check_password_hash(self.hospital_priv.find_one({'id': hospital_id})['password'], pswd)
+    
     
 
 class StaffDB:
@@ -88,12 +91,16 @@ class StaffDB:
     def get_count(self):
         return self.staff.count_documents({})
     
+    def check_password(self, staff_email, pswd):
+        return check_password_hash(self.staff.find_one({'email': staff_email})['password'], pswd)
+
+    
     
 class PrivateRecordDB:
     def __init__(self):
         self.private_record = db['private_record']
 
-    def add_record(self, patient_name, patient_age, patient_blood_group, patient_id, patient_medication, patient_diagnosis, patient_current_condition, patient_gender, patient_weight):
+    def add_record(self, hospital_id, patient_name, patient_age, patient_blood_group, patient_id, patient_medication, patient_diagnosis, patient_current_condition, patient_gender, patient_weight):
         record = {
             'name': patient_name,
             'age': patient_age,
@@ -103,21 +110,27 @@ class PrivateRecordDB:
             'medication': patient_medication,
             'diagnosis': patient_diagnosis,
             'current_condition': patient_current_condition,
-            'weight': patient_weight
+            'weight': patient_weight,
+            'hospital_id': hospital_id
         }
+
+        # TODO: Encryption goes here
 
         self.private_record.insert_one(record)
 
-    def get_record(self, patient_id):
-        return self.private_record.find_one({'id': patient_id})
+    def get_record(self, patient_id, hospital_id):
+        # TODO: Decryption goes here
+        return self.private_record.find_one({'id': patient_id, 'hospital_id': hospital_id})
     
     def get_records(self):
+        # TODO: Decryption goes here
         return self.private_record.find()
     
     def remove_record(self, patient_id):
         self.private_record.delete_one({'id': patient_id})
 
     def update_record(self, patient_id, patient_medication, patient_diagnosis, patient_current_condition):
+        # TODO: Encryption goes here
         self.private_record.update_one({'id': patient_id}, {'$set': {'medication': patient_medication, 'diagnosis': patient_diagnosis, 'current_condition': patient_current_condition}})
 
     def get_count(self):
@@ -128,26 +141,31 @@ class PublicRecordDB:
     def __init__(self):
         self.public_record = db['public_record']
 
-    def add_record(self, patient_id, patient_medication, patient_diagnosis, patient_current_condition):
+    def add_record(self, hospital_id, patient_id, patient_medication, patient_diagnosis, patient_current_condition):
+        # TODO: Encryption goes here
         record = {
             'id': patient_id,
             'medication': patient_medication,
             'diagnosis': patient_diagnosis,
-            'current_condition': patient_current_condition
+            'current_condition': patient_current_condition,
+            'hospital_id': hospital_id
         }
 
         self.public_record.insert_one(record)
 
-    def get_record(self, patient_id):
-        return self.public_record.find_one({'id': patient_id})
+    def get_record(self, patient_id, hospital_id):
+        # TODO: Decryption goes here
+        return self.public_record.find_one({'id': patient_id, 'hospital_id': hospital_id})
     
-    def get_records(self):
-        return self.public_record.find()
+    def get_records(self, hospital_id):
+        # TODO: Decryption goes here
+        return self.public_record.find({'hospital_id': hospital_id})
     
     def remove_record(self, patient_id):
         self.public_record.delete_one({'id': patient_id})
 
     def update_record(self, patient_id, patient_medication, patient_diagnosis, patient_current_condition):
+        # TODO: Encryption goes here
         self.public_record.update_one({'id': patient_id}, {'$set': {'medication': patient_medication, 'diagnosis': patient_diagnosis, 'current_condition': patient_current_condition}})
 
     def get_count(self):
