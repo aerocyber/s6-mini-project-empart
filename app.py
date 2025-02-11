@@ -1,4 +1,4 @@
-from flask import Flask, g, make_response, redirect
+from flask import Flask, g, make_response, redirect, session
 from staff_api import api
 from admin_api import admin
 from hospital_login import hospital
@@ -15,6 +15,7 @@ app.register_blueprint(admin_routing, url_prefix='/admin')
 app.register_blueprint(hospital_routes, url_prefix='/hospital')
 app.register_blueprint(staff_routing, url_prefix='/staff')
 
+
 @app.route('/')
 def home():
     return 'Welcome to the EmPaRT!'
@@ -23,6 +24,7 @@ def home():
 def logout():
     resp = make_response(redirect('/'))
     resp.delete_cookie('JWT')
+    resp.delete_cookie('username')
     return resp
 
 @app.teardown_appcontext

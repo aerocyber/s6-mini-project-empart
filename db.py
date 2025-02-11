@@ -18,9 +18,10 @@ class HospitalDB:
         self.hospital_pub = db['hospital_pub']
         self.hospital_priv = db['hospital_priv']
 
-    def add_hospital(self, hospital_id, hospital_name, hospital_location, password):
+    def add_hospital(self, email, hospital_id, hospital_name, hospital_location, password):
         hospital = {
             'id': hospital_id,
+            'email': email,
             'name': hospital_name,
             'location': hospital_location,
             'password': generate_password_hash(password)
@@ -33,14 +34,14 @@ class HospitalDB:
         self.hospital_pub.insert_one(hospital_pub)
         self.hospital_priv.insert_one(hospital)
 
-    def get_hospital(self, hospital_id):
-        return self.hospital_pub.find_one({'id': hospital_id})
+    def get_hospital(self, email):
+        return self.hospital_priv.find_one({'email': email})
     
     def get_hospitals(self):
         return self.hospital_pub.find()
     
-    def get_hospital_priv(self, hospital_id):
-        return self.hospital_priv.find_one({'id': hospital_id})
+    def get_hospital_priv(self, email):
+        return self.hospital_priv.find_one({'email': email})
     
     def remove_hospital(self, hospital_id):
         self.hospital_pub.delete_one({'id': hospital_id})
@@ -51,15 +52,20 @@ class HospitalDB:
         self.hospital_priv.update_one({'id': hospital_id}, {'$set': {'private_key': private_key, 'public_key': public_key}})
         self.hospital_pub.update_one({'id': hospital_id}, {'$set': {'public_key': public_key}})
         
-    def update_hospital(self, hospital_id, hospital_name, hospital_location, hospital_public_key, hospital_private_key):
+    def update_hospital(self, email, hospital_id, hospital_name, hospital_location, hospital_public_key, hospital_private_key):
         self.hospital_pub.update_one({'id': hospital_id}, {'$set': {'name': hospital_name, 'location': hospital_location, 'public_key': hospital_public_key}})
-        self.hospital_priv.update_one({'id': hospital_id}, {'$set': {'name': hospital_name, 'location': hospital_location, 'private_key': hospital_private_key, 'public_key': hospital_public_key}})
+        self.hospital_priv.update_one({'id': hospital_id}, {'$set': {'email': email, 'name': hospital_name, 'location': hospital_location, 'private_key': hospital_private_key, 'public_key': hospital_public_key}})
 
     def get_count(self):
         return self.hospital_pub.count_documents({})
     
-    def check_password(self, hospital_id, pswd):
-        return check_password_hash(self.hospital_priv.find_one({'id': hospital_id})['password'], pswd)
+    def check_password(self, email, pswd):
+        return check_password_hash(self.hospital_priv.find_one({'email': email})['password'], pswd)
+    
+    def add_keypair(self, email, public_key, private_key):
+        self.hospital_priv.update_one({'email': email}, {'$set': {'public_key': public_key, 'private_key': private_key}})
+        id = self.get_hospital(email)['id']
+        self.hospital_pub.update_one({'id': id}, {'$set': {'public_key': public_key}})
     
     
 
@@ -71,7 +77,7 @@ class StaffDB:
         staff = {
             'name': staff_name,
             'email': staff_email,
-            'password': staff_password,
+            'password': generate_password_hash(staff_password),
             'hospital_id': hospital_id
         }
         self.staff.insert_one(staff)
@@ -86,7 +92,7 @@ class StaffDB:
         self.staff.delete_one({'email': staff_email})
         
     def update_staff(self, staff_email, staff_password):
-        self.staff.update_one({'email': staff_email}, {'$set': {'password': staff_password}})
+        self.staff.update_one({'email': staff_email}, {'$set': {'password': generate_password_hash(staff_password)}})
     
     def get_count(self):
         return self.staff.count_documents({})
@@ -94,13 +100,14 @@ class StaffDB:
     def check_password(self, staff_email, pswd):
         return check_password_hash(self.staff.find_one({'email': staff_email})['password'], pswd)
 
+
     
     
 class PrivateRecordDB:
     def __init__(self):
         self.private_record = db['private_record']
 
-    def add_record(self, hospital_id, patient_name, patient_age, patient_blood_group, patient_id, patient_medication, patient_diagnosis, patient_current_condition, patient_gender, patient_weight):
+    def add_record(self, to_hospital_id, from_hospital_id, patient_name, patient_age, patient_blood_group, patient_id, patient_medication, patient_diagnosis, patient_current_condition, patient_gender, patient_weight):
         record = {
             'name': patient_name,
             'age': patient_age,
@@ -111,7 +118,8 @@ class PrivateRecordDB:
             'diagnosis': patient_diagnosis,
             'current_condition': patient_current_condition,
             'weight': patient_weight,
-            'hospital_id': hospital_id
+            'to_hospital_id': to_hospital_id,
+            'from_hospital_id': from_hospital_id
         }
 
         # TODO: Encryption goes here
@@ -141,14 +149,15 @@ class PublicRecordDB:
     def __init__(self):
         self.public_record = db['public_record']
 
-    def add_record(self, hospital_id, patient_id, patient_medication, patient_diagnosis, patient_current_condition):
+    def add_record(self, to_hospital_id, from_hospital_id, patient_id, patient_medication, patient_diagnosis, patient_current_condition):
         # TODO: Encryption goes here
         record = {
             'id': patient_id,
             'medication': patient_medication,
             'diagnosis': patient_diagnosis,
             'current_condition': patient_current_condition,
-            'hospital_id': hospital_id
+            'to_hospital_id': to_hospital_id,
+            'from_hospital_id': from_hospital_id
         }
 
         self.public_record.insert_one(record)

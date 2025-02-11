@@ -45,10 +45,10 @@ def generate_hospital_id(name):
 
     return id
 
-# Index route
+# Index route 
 @admin_routing.route('/')
 def index():
-    if request.cookies.get('JWT') and verify_jwt_token(request.cookies.get('JWT')):
+    if request.cookies.get('JWT') and verify_jwt_token(request.cookies.get('JWT')) and verify_jwt_token(request.cookies.get('JWT'))['user'] == ADMIN_USER:
         return render_template('admin_dashboard.html')
     if request.cookies.get('JWT'):
         return redirect('/logout')
@@ -60,6 +60,8 @@ def index():
 def login():
     if request.method == 'POST':
         if request.cookies.get('JWT'):
+            if verify_jwt_token(request.cookies.get('JWT')) and verify_jwt_token(request.cookies.get('JWT'))['user'] == ADMIN_USER:
+                return redirect('/admin')
             return redirect('/logout')
         username = request.form['email']
         password = request.form['password']
@@ -73,20 +75,24 @@ def login():
         token = generate_jwt_token(user)
         response = make_response(redirect('/admin'))
         response.set_cookie('JWT', token, expires=datetime.datetime.now() + datetime.timedelta(days=15))
+        response.set_cookie('username', username, expires=datetime.datetime.now() + datetime.timedelta(days=15))
         return response
     if request.cookies.get('JWT'):
+        if verify_jwt_token(request.cookies.get('JWT')):
+            return redirect('/admin')
         return redirect('/logout')
     return render_template('admin_login.html')
 
 # Add hospital route
 @admin_routing.route('/add-hospital', methods=['POST'])
 def add_hospital():
-    if verify_jwt_token(request.cookies.get('JWT')):
+    if verify_jwt_token(request.cookies.get('JWT')) and verify_jwt_token(request.cookies.get('JWT'))['user'] == ADMIN_USER:
         hospital_name = request.form['name']
-        hospital_id = request.form['hospital_id']
+        hospital_id = generate_hospital_id(hospital_name)
         location = request.form['location']
-        password = generate_password_hash(request.form['password'])
-        hospitalDb.add_hospital(hospital_id, hospital_name, location, password)
+        password = request.form['password']
+        email = request.form['email']
+        hospitalDb.add_hospital(email, hospital_id, hospital_name, location, password)
         return 'Hospital added', 200
     return redirect('/logout')
 
@@ -95,7 +101,7 @@ def add_hospital():
 # Delete hospital route
 @admin_routing.route('/delete-hospital', methods=['POST'])
 def delete_hospital():
-    if verify_jwt_token(request.cookies.get('JWT')):
+    if verify_jwt_token(request.cookies.get('JWT')) and verify_jwt_token(request.cookies.get('JWT'))['user'] == ADMIN_USER:
         hospital_id = request.form['id']
         hospitalDb.remove_hospital(hospital_id)
         return redirect('/admin'), 200
@@ -104,8 +110,11 @@ def delete_hospital():
 # Get hospital id
 @admin_routing.route('/get-hospital-id', methods=['GET'])
 def get_hospital_id():
-    id = generate_hospital_id(request.get_json.get('name'))
+    id = generate_hospital_id(request.form.get('name'))
     # Check if hospital id exists
     if hospitalDb.get_hospital(id):
         return 'Hospital ID already exists', 400
     return id, 200
+
+
+# TESTED ^
