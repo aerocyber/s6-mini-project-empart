@@ -1,6 +1,7 @@
 from dotenv import load_dotenv
 from os import environ
 import jwt
+from hashlib import sha256
 
 load_dotenv()
 # MONGO_DB_CONNECTION_STRING = environ.get('MONGO_DB_CONNECTION_STRING')
@@ -41,15 +42,15 @@ def decode_jwt_token(token):
         return 'Invalid token. Please log in again.'
     
 # Generate JWT token
-def generate_jwt_token(username, password):
-    payload = {"user": username, 'password': password}
+def generate_jwt_token(username, password, role):
+    payload = {"user": username, 'password': sha256(password.encode('utf-8')).hexdigest(), 'role': role}
     return jwt.encode(payload, SECRET_KEY, algorithm='HS256')
 
 # Verify JWT token
-def verify_jwt_token(token, username):
+def verify_jwt_token(token, username, role):
     try:
         x = jwt.decode(token, SECRET_KEY, algorithms=['HS256'])
-        if x['user'] == username:
+        if x['user'] == username and x['role'] == role:
             return True
         return False
     except jwt.ExpiredSignatureError:

@@ -203,9 +203,9 @@
     <div class="login-container" id="loginPage">
         <div class="login-box">
             <h2>Staff Login</h2>
-            <form id="loginForm">
-                <input type="text" id="loginId" placeholder="Login ID" required>
-                <input type="password" id="password" placeholder="Password" required>
+            <form id="loginForm" action="/staff/login" method="post">
+                <input type="text" id="loginId" placeholder="Login ID" name="email" required>
+                <input type="password" id="password" name="password" placeholder="Password" required>
                 <button type="submit">Login</button>
             </form>
             <div id="errorMessage" class="error-message">Invalid Login ID or Password</div>
@@ -293,36 +293,36 @@
 
     <script>
         // Simulated staff credentials
-        const validLoginId = "staff1";
-        const validPassword = "password123";
+        // const validLoginId = "staff1";
+        // const validPassword = "password123";
 
-        // Handle login form submission
-        document.getElementById('loginForm').addEventListener('submit', function(event) {
-            event.preventDefault();
-            const loginId = document.getElementById('loginId').value;
-            const password = document.getElementById('password').value;
+        // // Handle login form submission
+        // document.getElementById('loginForm').addEventListener('submit', function(event) {
+        //     event.preventDefault();
+        //     const loginId = document.getElementById('loginId').value;
+        //     const password = document.getElementById('password').value;
 
-            // Validate credentials
-            if (loginId === validLoginId && password === validPassword) {
-                document.getElementById('loginPage').style.display = 'none';
-                document.getElementById('dashboardPage').style.display = 'block';
-            } else {
-                document.getElementById('errorMessage').style.display = 'block';
-            }
-        });
+        //     // Validate credentials
+        //     if (loginId === validLoginId && password === validPassword) {
+        //         document.getElementById('loginPage').style.display = 'none';
+        //         document.getElementById('dashboardPage').style.display = 'block';
+        //     } else {
+        //         document.getElementById('errorMessage').style.display = 'block';
+        //     }
+        // });
 
-        // Notification for sending record
-        document.getElementById("sendForm").addEventListener("submit", function(event) {
-            event.preventDefault();
+        // // Notification for sending record
+        // document.getElementById("sendForm").addEventListener("submit", function(event) {
+        //     event.preventDefault();
 
-            // Show notification after sending record
-            document.getElementById("sendNotification").style.display = "block";
+        //     // Show notification after sending record
+        //     document.getElementById("sendNotification").style.display = "block";
 
-            // Hide notification after 3 seconds
-            setTimeout(function() {
-                document.getElementById("sendNotification").style.display = "none";
-            }, 3000);
-        });
+        //     // Hide notification after 3 seconds
+        //     setTimeout(function() {
+        //         document.getElementById("sendNotification").style.display = "none";
+        //     }, 3000);
+        // });
 
         // Function to simulate receiving a new patient record
         function receiveNewRecord() {

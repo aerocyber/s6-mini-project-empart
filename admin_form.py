@@ -6,6 +6,8 @@ from dotenv import load_dotenv
 from os import environ
 import datetime
 from db import HospitalDB
+from data import generate_jwt_token, verify_jwt_token
+import bson
 
 hospitalDb = HospitalDB()
 
@@ -17,21 +19,6 @@ ADMIN_USER = environ.get('ADMIN_USERNAME')
 ADMIN_PASS = environ.get('ADMIN_PASSWORD')
 
 admin_routing = Blueprint('admin_form', __name__)
-
-# Generate JWT token
-def generate_jwt_token(user):
-    payload = {"user": user['username'], 'password': user['password']}
-    return jwt.encode(payload, SECRET_KEY, algorithm='HS256')
-
-# Verify JWT token
-def verify_jwt_token(token):
-    try:
-        return jwt.decode(token, SECRET_KEY, algorithms=['HS256'])
-    except jwt.ExpiredSignatureError:
-        return 'Signature expired. Please log in again.'
-    except jwt.InvalidTokenError:
-        return 'Invalid token. Please log in again.'
-    
 
 # Generate hospital ID
 def generate_hospital_id(name):
@@ -48,7 +35,7 @@ def generate_hospital_id(name):
 # Index route 
 @admin_routing.route('/')
 def index():
-    if request.cookies.get('JWT') and verify_jwt_token(request.cookies.get('JWT')) and verify_jwt_token(request.cookies.get('JWT'))['user'] == ADMIN_USER:
+    if request.cookies.get('JWT') and verify_jwt_token(request.cookies.get('JWT'), request.cookies.get('username'), 'admin'):
         return render_template('admin_dashboard.html')
     if request.cookies.get('JWT'):
         return redirect('/logout')
@@ -60,7 +47,7 @@ def index():
 def login():
     if request.method == 'POST':
         if request.cookies.get('JWT'):
-            if verify_jwt_token(request.cookies.get('JWT')) and verify_jwt_token(request.cookies.get('JWT'))['user'] == ADMIN_USER:
+            if verify_jwt_token(request.cookies.get('JWT'), request.cookies.get('username'), 'admin'):
                 return redirect('/admin')
             return redirect('/logout')
         username = request.form['email']
@@ -72,13 +59,14 @@ def login():
             "username": username,
             "password": password
         }
-        token = generate_jwt_token(user)
+        token = generate_jwt_token(username, password, 'admin')
         response = make_response(redirect('/admin'))
         response.set_cookie('JWT', token, expires=datetime.datetime.now() + datetime.timedelta(days=15))
         response.set_cookie('username', username, expires=datetime.datetime.now() + datetime.timedelta(days=15))
+        response.set_cookie('role', 'admin', expires=datetime.datetime.now() + datetime.timedelta(days=15))
         return response
     if request.cookies.get('JWT'):
-        if verify_jwt_token(request.cookies.get('JWT')):
+        if verify_jwt_token(request.cookies.get('JWT'), request.cookies.get('username'), 'admin'):
             return redirect('/admin')
         return redirect('/logout')
     return render_template('admin_login.html')
@@ -86,13 +74,14 @@ def login():
 # Add hospital route
 @admin_routing.route('/add-hospital', methods=['POST'])
 def add_hospital():
-    if verify_jwt_token(request.cookies.get('JWT')) and verify_jwt_token(request.cookies.get('JWT'))['user'] == ADMIN_USER:
+    if verify_jwt_token(request.cookies.get('JWT'), request.cookies.get('username'), 'admin'):
         hospital_name = request.form['name']
         hospital_id = generate_hospital_id(hospital_name)
         location = request.form['location']
         password = request.form['password']
         email = request.form['email']
-        hospitalDb.add_hospital(email, hospital_id, hospital_name, location, password)
+        if hospitalDb.add_hospital(email, hospital_id, hospital_name, location, password) is not None:
+            return 'Hospital already exists', 400
         return 'Hospital added', 200
     return redirect('/logout')
 
@@ -101,7 +90,7 @@ def add_hospital():
 # Delete hospital route
 @admin_routing.route('/delete-hospital', methods=['POST'])
 def delete_hospital():
-    if verify_jwt_token(request.cookies.get('JWT')) and verify_jwt_token(request.cookies.get('JWT'))['user'] == ADMIN_USER:
+    if verify_jwt_token(request.cookies.get('JWT'), request.cookies.get('username'), 'admin'):
         hospital_id = request.form['id']
         hospitalDb.remove_hospital(hospital_id)
         return redirect('/admin'), 200
@@ -115,6 +104,14 @@ def get_hospital_id():
     if hospitalDb.get_hospital(id):
         return 'Hospital ID already exists', 400
     return id, 200
+
+# Get all hospitals
+@admin_routing.route('/get-hospitals', methods=['GET'])
+def get_hospitals():
+    if verify_jwt_token(request.cookies.get('JWT'), request.cookies.get('username'), 'admin'):
+        hospitals = bson.json_util.dumps(list(hospitalDb.get_hospitals()))
+        return hospitals, 200
+    return redirect('/logout')
 
 
 # TESTED ^

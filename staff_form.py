@@ -1,4 +1,4 @@
-from flask import Blueprint, request, make_response, redirect, render_template
+from flask import Blueprint, request, make_response, redirect, render_template, session
 from werkzeug.security import check_password_hash
 import random
 from data import verify_jwt_token, generate_jwt_token, decode_jwt_token
@@ -9,6 +9,8 @@ from db import StaffDB, PrivateRecordDB, PublicRecordDB
 
 staff_token_list = {}
 
+generated_ids = []
+
 load_dotenv()
 SECRET_KEY = environ.get('SECRET_KEY')
 
@@ -17,9 +19,9 @@ staff_routing = Blueprint('staff_form', __name__)
 def generate_patient_id(hospital_id):
     ran = hospital_id + '-'
     for i in range(5):
-        ran += random.randint(0, 9)
+        ran += str(random.randint(0, 9))
 
-    if PrivateRecordDB().get_record(ran):
+    if PrivateRecordDB().get_record(ran, hospital_id) or ran in generated_ids:
         return generate_patient_id(hospital_id)
     return ran
 
@@ -28,9 +30,9 @@ def generate_patient_id(hospital_id):
 @staff_routing.route('/')
 def index():
     if request.cookies.get('JWT'):
-        if verify_jwt_token(request.cookies.get('JWT')):
+        if verify_jwt_token(request.cookies.get('JWT'), request.cookies.get('username'), 'staff'):
             return render_template('staff_index.html')
-        return redirect('/staff/logout')
+        return redirect('/logout')
     return redirect('/staff/login')
 
 # Login route
@@ -38,7 +40,7 @@ def index():
 def staff_login():
     if request.method == 'POST':
         if request.cookies.get('JWT') and request.cookies.get('username'):
-            if verify_jwt_token(request.cookies.get('JWT'), request.cookies.get('username')):
+            if verify_jwt_token(request.cookies.get('JWT'), request.cookies.get('username'), 'staff'):
                 return redirect('/staff')
             return redirect('/logout')
         
@@ -48,14 +50,21 @@ def staff_login():
         user = db.get_staff(username)
         if not user or not db.check_password(username, password):
             return 'Invalid credentials', 403
-        token = generate_jwt_token(user)
+        token = generate_jwt_token(username, password, 'staff')
         response = make_response(redirect('/staff'))
         response.set_cookie('username', username, expires=datetime.datetime.now() + datetime.timedelta(days=15))
         response.set_cookie('JWT', token, expires=datetime.datetime.now() + datetime.timedelta(days=15))
+        response.set_cookie('role', 'staff', expires=datetime.datetime.now() + datetime.timedelta(days=15))
+        if 'username' not in session:
+            session['username'] = {'username': username, 'ids': []}
+        for i in range(10):
+            id_tmp = generate_patient_id(user['hospital_id'])
+            generated_ids.append(id_tmp)
+            session['username']['ids'].append(id_tmp)
         return response
     
     if request.cookies.get('JWT'):
-        if verify_jwt_token(request.cookies.get('JWT'), request.cookies.get('username')):
+        if verify_jwt_token(request.cookies.get('JWT'), request.cookies.get('username'), 'staff'):
             resp = make_response(redirect('/staff'))
             return resp
         return redirect('/logout')
@@ -66,7 +75,7 @@ def staff_login():
 def add_record():
     if request.method == 'POST':
         db = StaffDB()
-        if not verify_jwt_token(request.cookies.get('JWT'), request.cookies.get('username')):
+        if not verify_jwt_token(request.cookies.get('JWT'), request.cookies.get('username'), 'staff'):
             return 'Invalid token', 403
         user = db.find_one({'username': request.cookies.get('username')})
         if not user:
@@ -75,7 +84,9 @@ def add_record():
         patient_name = request.form['patient_name']
         patient_age = request.form['patient_age']
         patient_blood_group = request.form['patient_blood_group']
-        patient_id = generate_patient_id(user['hospital_id'])
+        # patient_id = generate_patient_id(user['hospital_id'])
+        patient_id = session['username']['ids'].pop()
+        session['username']['ids'].append(patient_id)
         patient_medication = request.form['patient_medication']
         patient_diagnosis = request.form['patient_diagnosis']
         patient_current_condition = request.form['patient_current_condition']
@@ -99,7 +110,7 @@ def add_record():
 def get_record():
     if request.method == 'POST':
         db = StaffDB()
-        if not verify_jwt_token(request.cookies.get('JWT'), request.cookies.get('username')):
+        if not verify_jwt_token(request.cookies.get('JWT'), request.cookies.get('username'), 'staff'):
             return 'Invalid token', 403
         user = db.find_one({'username': request.cookies.get('username')})
         if not user:
@@ -117,7 +128,7 @@ def get_record():
 def get_public_record():
     if request.method == 'POST':
         db = StaffDB()
-        if not verify_jwt_token(request.cookies.get('JWT'), request.cookies.get('username')):
+        if not verify_jwt_token(request.cookies.get('JWT'), request.cookies.get('username'), 'staff'):
             return 'Invalid token', 403
         user = db.find_one({'username': request.cookies.get('username')})
         if not user:
@@ -136,9 +147,9 @@ def get_public_record():
 def get_all_public_records():
     if request.method == 'POST':
         db = StaffDB()
-        if not verify_jwt_token(request.cookies.get('JWT')):
+        if not verify_jwt_token(request.cookies.get('JWT'), 'staff'):
             return 'Invalid token', 403
-        user = db.find_one({'username': verify_jwt_token(request.cookies.get('JWT'))['user']})
+        user = db.find_one({'username': decode_jwt_token(request.cookies.get('JWT'))['user']})
         if not user:
             return 'Invalid token', 403
         

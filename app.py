@@ -5,9 +5,17 @@ from hospital_login import hospital
 from admin_form import admin_routing
 from hospital_form import hospital_routes
 from staff_form import staff_routing
+from dotenv import load_dotenv
+from os import environ
+
+load_dotenv()
+SECRET_KEY = environ.get('SECRET_KEY')
 
 
 app = Flask(__name__)
+
+app.config['SECRET_KEY'] = SECRET_KEY
+
 app.register_blueprint(api, url_prefix='/api/staff')
 app.register_blueprint(admin, url_prefix='/api/admin')
 app.register_blueprint(hospital, url_prefix='/api/hospital')
@@ -25,6 +33,9 @@ def logout():
     resp = make_response(redirect('/'))
     resp.delete_cookie('JWT')
     resp.delete_cookie('username')
+    resp.delete_cookie('role')
+    if 'username' in session:
+        session.pop('username')
     return resp
 
 @app.teardown_appcontext

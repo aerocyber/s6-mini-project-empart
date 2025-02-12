@@ -31,6 +31,8 @@ class HospitalDB:
             'name': hospital_name,
             'location': hospital_location
         }
+        if self.hospital_priv.find_one({'email': email}):
+            return 'Email already exists'
         self.hospital_pub.insert_one(hospital_pub)
         self.hospital_priv.insert_one(hospital)
 
@@ -88,11 +90,11 @@ class StaffDB:
     def get_staffs(self):
         return self.staff.find()
     
-    def remove_staff(self, staff_email):
-        self.staff.delete_one({'email': staff_email})
+    def remove_staff(self, staff_email, hospital_id):
+        self.staff.delete_one({'email': staff_email, 'hospital_id': hospital_id})
         
-    def update_staff(self, staff_email, staff_password):
-        self.staff.update_one({'email': staff_email}, {'$set': {'password': generate_password_hash(staff_password)}})
+    def update_staff(self, staff_email, staff_password, staff_name, hospital_id):
+        self.staff.update_one({'email': staff_email, 'hospital_id': hospital_id}, {'$set': {'password': generate_password_hash(staff_password), 'name': staff_name}})
     
     def get_count(self):
         return self.staff.count_documents({})
@@ -119,7 +121,8 @@ class PrivateRecordDB:
             'current_condition': patient_current_condition,
             'weight': patient_weight,
             'to_hospital_id': to_hospital_id,
-            'from_hospital_id': from_hospital_id
+            'from_hospital_id': from_hospital_id,
+            'status': 'initiated'
         }
 
         # TODO: Encryption goes here
@@ -144,6 +147,28 @@ class PrivateRecordDB:
     def get_count(self):
         return self.private_record.count_documents({})
     
+    def complete_status(self, patient_id):
+        self.private_record.update_one({'id': patient_id}, {'$set': {'status': 'completed'}})
+
+    def get_complete_status_count_by_hospital(self, hospital_id):
+        return self.private_record.count_documents({'from_hospital_id': hospital_id, 'status': 'completed'})
+    
+    def get_initiated_status_count_by_hospital(self, hospital_id):
+        return self.private_record.count_documents({'from_hospital_id': hospital_id, 'status': 'initiated'})
+    
+    def get_complete_status_count(self):
+        return self.private_record.count_documents({'status': 'completed'})
+    
+    def get_initiated_status_count(self):
+        return self.private_record.count_documents({'status': 'initiated'})
+    
+    def get_complete_status_count_by_to_hospital(self, hospital_id):
+        return self.private_record.count_documents({'to_hospital_id': hospital_id, 'status': 'completed'})
+    
+    def get_initiated_status_count_by_to_hospital(self, hospital_id):
+        return self.private_record.count_documents({'to_hospital_id': hospital_id, 'status': 'initiated'})
+    
+    
 
 class PublicRecordDB:
     def __init__(self):
@@ -157,7 +182,8 @@ class PublicRecordDB:
             'diagnosis': patient_diagnosis,
             'current_condition': patient_current_condition,
             'to_hospital_id': to_hospital_id,
-            'from_hospital_id': from_hospital_id
+            'from_hospital_id': from_hospital_id,
+            'status': 'initiated'
         }
 
         self.public_record.insert_one(record)
@@ -179,3 +205,24 @@ class PublicRecordDB:
 
     def get_count(self):
         return self.public_record.count_documents({})
+    
+    def complete_status(self, patient_id):
+        self.private_record.update_one({'id': patient_id}, {'$set': {'status': 'completed'}})
+
+    def get_complete_status_count_by_hospital(self, hospital_id):
+        return self.private_record.count_documents({'from_hospital_id': hospital_id, 'status': 'completed'})
+    
+    def get_initiated_status_count_by_hospital(self, hospital_id):
+        return self.private_record.count_documents({'from_hospital_id': hospital_id, 'status': 'initiated'})
+    
+    def get_complete_status_count(self):
+        return self.private_record.count_documents({'status': 'completed'})
+    
+    def get_initiated_status_count(self):
+        return self.private_record.count_documents({'status': 'initiated'})
+    
+    def get_complete_status_count_by_to_hospital(self, hospital_id):
+        return self.private_record.count_documents({'to_hospital_id': hospital_id, 'status': 'completed'})
+    
+    def get_initiated_status_count_by_to_hospital(self, hospital_id):
+        return self.private_record.count_documents({'to_hospital_id': hospital_id, 'status': 'initiated'})
