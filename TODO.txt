@@ -1,0 +1,8 @@
+TODOs
+======
+
+Encryption
+UI for home, about and related pages
+Get live data in admin dashboard and hospital dashboard
+Modify DB structure to add a date to each record
+password change for staff and hospital

@@ -200,7 +200,7 @@ class PublicRecordDB:
     
     def get_records(self, hospital_id):
         # TODO: Decryption goes here
-        return self.public_record.find({'hospital_id': hospital_id})
+        return self.public_record.find({'to_hospital_id': hospital_id})
     
     def remove_record(self, patient_id):
         self.public_record.delete_one({'id': patient_id})

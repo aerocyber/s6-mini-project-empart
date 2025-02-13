@@ -106,9 +106,9 @@ def add_record():
         patient_id = session['username']['ids'].pop()
         g = GeneratedPatientID()
         g.remove_id(patient_id)
-        x = generate_patient_id(hdb.get_hospital(user['hospital_id'])['id'])
+        x = generate_patient_id(hdb.get_hospital_by_id(user['hospital_id'])['id'])
         session['username']['ids'].append(x)
-        g.add_id(x, hdb.get_hospital(user['hospital_id'])['id'])
+        g.add_id(x, hdb.get_hospital_by_id(user['hospital_id'])['id'])
         patient_medication = request.form['patient_medication']
         patient_diagnosis = request.form['patient_diagnosis']
         patient_current_condition = request.form['patient_current_condition']
@@ -183,7 +183,20 @@ def get_all_public_records():
         s = StaffDB()
         hospital_id = s.get_staff(user['email'])['hospital_id']
         records = pub.get_records(hospital_id)
+        print(bson.json_util.dumps(records)) # FIXME: REMOVE THIS
         return bson.json_util.dumps(records), 200
-    return render_template('get_all_public_records.html')
+    
+    db = StaffDB()
+    if not verify_jwt_token(request.cookies.get('JWT'), request.cookies.get('username'), 'staff'):
+        return 'Invalid token', 403
+    user = db.get_staff( request.cookies.get('username'))
+    if not user:
+        return 'Invalid token', 403
+    
+    pub = PublicRecordDB()
+    s = StaffDB()
+    hospital_id = s.get_staff(user['email'])['hospital_id']
+    records = pub.get_records(hospital_id)
+    return render_template('get_all_public_records.html', records=records)
 
 

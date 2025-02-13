@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Public Records</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        .card {
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            padding: 16px;
+            margin: 16px;
+            box-shadow: 2px 2px 12px rgba(0, 0, 0, 0.1);
+        }
+        .card-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-around;
+        }
+    </style>
+</head>
+<body>
+    <h1>Public Records with Status: Initiated</h1>
+    <div class="card-container">
+        {% if records %}
+            {% for record in records %}
+                <div class="card">
+                    <h2>ID: {{ record.id }}</h2>
+                    <!-- <p><strong>Name:</strong> {{ record.name }}</p> -->
+                    <p><strong>From:</strong> {{ record.from_hospital_id }}</p>
+                    <p><strong>Medication</strong> {{ record.medication}}</p>
+                    <p><strong>Diagnosis:</strong> {{ record.diagnosis }}</p>
+                    <p><strong>Current Condition:</strong> {{ record.current_condition }}</p>
+                    <p><strong>Status:</strong> {{ record.status }}</p>
+                    <!-- <p><strong>Date:</strong> {{ record.date }}</p> --> <!-- TODO: Add date-->
+                </div>
+            {% endfor %}
+        {% else %}
+            <p>No record transfers initiated to this hospital yet</p>
+        {% endif %}
+    </div>
+</body>
+</html>

@@ -128,20 +128,20 @@
 
     <div class="page-container">
         <div class="form-container">
-            <form id="patientForm" action="/add-record" method="post">
+            <form id="patientForm" action="/staff/add-record" method="post">
                 <div class="form-group">
                     <label for="patientName">Patient Name:</label>
-                    <input type="text" id="patientName" name="patientName" required>
+                    <input type="text" id="patientName" name="patient_name" required>
                 </div>
 
                 <div class="form-group">
                     <label for="patientAge">Patient Age:</label>
-                    <input type="number" id="patientAge" name="patientAge" required>
+                    <input type="number" id="patientAge" name="patient_age" required>
                 </div>
 
                 <div class="form-group">
                     <label for="patientBloodGroup">Blood Group:</label>
-                    <select id="patientBloodGroup" name="patientBloodGroup" required>
+                    <select id="patientBloodGroup" name="patient_blood_group" required>
                         <option value="">Select Blood Group</option>
                         <option value="A+">A+</option>
                         <option value="A-">A-</option>
@@ -156,7 +156,7 @@
 
                 <div class="form-group">
                     <label for="patientGender">Gender:</label>
-                    <select id="patientGender" name="patientGender" required>
+                    <select id="patientGender" name="patient_gender" required>
                         <option value="">Select Gender</option>
                         <option value="Male">Male</option>
                         <option value="Female">Female</option>
@@ -165,33 +165,28 @@
                 </div>
 
                 <div class="form-group">
-                    <label for="patientId">Patient ID:</label>
-                    <input type="text" id="patientId" name="patientId" required>
-                </div>
-
-                <div class="form-group">
                     <label for="patientMedication">Medication:</label>
-                    <textarea id="patientMedication" name="patientMedication" required></textarea>
+                    <textarea id="patientMedication" name="patient_medication" required></textarea>
                 </div>
 
                 <div class="form-group">
                     <label for="patientDiagnosis">Diagnosis:</label>
-                    <textarea id="patientDiagnosis" name="patientDiagnosis" required></textarea>
+                    <textarea id="patientDiagnosis" name="patient_diagnosis" required></textarea>
                 </div>
 
                 <div class="form-group">
                     <label for="patientCurrentCondition">Current Condition:</label>
-                    <textarea id="patientCurrentCondition" name="patientCurrentCondition" required></textarea>
+                    <textarea id="patientCurrentCondition" name="patient_current_condition" required></textarea>
                 </div>
 
                 <div class="form-group">
                     <label for="patientWeight">Weight (kg):</label>
-                    <input type="number" id="patientWeight" name="patientWeight" required>
+                    <input type="number" id="patientWeight" name="patient_weight" required>
                 </div>
 
                 <div class="form-group">
                     <label for="toHospitalId">To Hospital ID:</label>
-                    <input type="text" id="toHospitalId" name="toHospitalId" required>
+                    <input type="text" id="toHospitalId" name="to_hospital_id" required>
                 </div>
 
                 <button type="submit">Submit</button>
@@ -200,9 +195,9 @@
         </div>
 
         <div class="alerts-container">
-            <div id="incomingTransfer" class="incoming-transfer">
-                No incoming transfers
-            </div>
+            <a href="/staff/get-all-public-records"><button class="incoming-transfer" >
+                Check transfers
+            </button></a>
         </div>
     </div>
 
@@ -247,19 +242,8 @@
         // });
 
         // Simulate periodic checks for incoming transfers (replace with actual backend polling)
-        var url = window.location.href.trimEnd('/') + "/get-all-public-records";
-        setInterval(() => {
-            fetch('your-backend-url/incoming-transfers')
-            .then(response => response.json())
-            .then(data => {
-                if (data && data.hasNewTransfers) {
-                    document.getElementById('incomingTransfer').innerText = 'New patient transfer received!';
-                }
-            })
-            .catch(error => {
-                console.error('Error checking for transfers:', error);
-            });
-        }, 30000); // Check every 30 seconds
+        var url = window.location.href.trimEnd('/') + "get-all-public-records";
+        
     </script>
 </body>
 </html>
