@@ -20,7 +20,9 @@ hospital_routes = Blueprint('hospital_form', __name__)
 @hospital_routes.route('/')
 def index():
     if request.cookies.get('JWT') and verify_jwt_token(request.cookies.get('JWT'), request.cookies.get('username'), 'hospital'):
-        return render_template('hospital_dashboard.html')
+        h = HospitalDB()
+        hospital = h.get_hospital(request.cookies.get('username'))
+        return render_template('hospital_dashboard.html', hospital_name = hospital['name'], location = hospital['location'])
     if request.cookies.get('JWT'):
         return redirect('/logout')
     return redirect('/hospital/login')
@@ -63,14 +65,15 @@ def add_staff():
                 staff_name = request.form['staff_name']
                 staff_email = request.form['staff_email']
                 staff_password = request.form['staff_password']
-                hospital_id = request.cookies.get('username')
+                h = HospitalDB()
+                hospital_id = h.get_hospital(request.cookies.get('username'))['id']
                 if staffDb.get_staff(staff_email):
                     return 'Staff already exists', 400
                 staffDb.add_staff(staff_name, staff_email, staff_password, hospital_id)
-                return 'Staff added successfully', 201
+                return redirect('/hospital')
             return redirect('/logout')
         return redirect('/hospital/login')
-    return render_template('add_staff.html')
+    return redirect('/hospital')
 
 @hospital_routes.route('/keypair', methods=['POST', 'GET'])
 def add_keypair():
@@ -81,7 +84,7 @@ def add_keypair():
                 private_key = request.form['private_key']
                 hospital_email = request.cookies.get('username')
                 hospitalDb.add_keypair(hospital_email, public_key, private_key)
-                return 'Key pair added successfully', 201
+                return redirect('/hospital')
             return redirect('/logout')
         return redirect('/hospital/login')
     return render_template('add_keypair.html')

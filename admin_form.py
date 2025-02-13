@@ -1,7 +1,8 @@
+import bson.json_util
 from flask import Blueprint, request, make_response, redirect, render_template
 from werkzeug.security import generate_password_hash
 import random
-import jwt
+import json
 from dotenv import load_dotenv
 from os import environ
 import datetime
@@ -36,7 +37,13 @@ def generate_hospital_id(name):
 @admin_routing.route('/')
 def index():
     if request.cookies.get('JWT') and verify_jwt_token(request.cookies.get('JWT'), request.cookies.get('username'), 'admin'):
-        return render_template('admin_dashboard.html')
+        h = HospitalDB()
+        # hospital_list = bson.json_util.dumps(h.get_hospitals())
+        hospital_list = []
+        for i in h.get_hospitals():
+            hospital_list.append(i['name'])
+        print(hospital_list)
+        return render_template('admin_dashboard.html', hospital_list=hospital_list)
     if request.cookies.get('JWT'):
         return redirect('/logout')
     return redirect('/admin/login')
@@ -72,8 +79,16 @@ def login():
     return render_template('admin_login.html')
 
 # Add hospital route
-@admin_routing.route('/add-hospital', methods=['POST'])
+@admin_routing.route('/add-hospital', methods=['POST', 'GET'])
 def add_hospital():
+    if request.method == 'GET':
+        if verify_jwt_token(request.cookies.get('JWT'), request.cookies.get('username'), 'admin'):
+            h = HospitalDB().get_hospitals()
+            d = []
+            for i in h:
+                d.append(i['name'])
+            return render_template('admin_add_hosp.html', hospitals=d)
+        return redirect('/logout')
     if verify_jwt_token(request.cookies.get('JWT'), request.cookies.get('username'), 'admin'):
         hospital_name = request.form['name']
         hospital_id = generate_hospital_id(hospital_name)
@@ -82,14 +97,18 @@ def add_hospital():
         email = request.form['email']
         if hospitalDb.add_hospital(email, hospital_id, hospital_name, location, password) is not None:
             return 'Hospital already exists', 400
-        return 'Hospital added', 200
+        return redirect('/admin')
     return redirect('/logout')
 
 
 
 # Delete hospital route
-@admin_routing.route('/delete-hospital', methods=['POST'])
+@admin_routing.route('/delete-hospital', methods=['POST', 'GET'])
 def delete_hospital():
+    if request.method == 'GET':
+        if verify_jwt_token(request.cookies.get('JWT'), request.cookies.get('username'), 'admin'):
+            return render_template('admin_hosp_search.html')
+        return redirect('/logout')
     if verify_jwt_token(request.cookies.get('JWT'), request.cookies.get('username'), 'admin'):
         hospital_id = request.form['id']
         hospitalDb.remove_hospital(hospital_id)

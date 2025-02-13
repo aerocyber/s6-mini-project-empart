@@ -3,9 +3,263 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Patient Record Transfer System</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+        }
+
+        .header {
+            background-color: white;
+            padding: 15px 20px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header h1 {
+            margin: 0;
+            font-size: 1.5em;
+        }
+
+        .header-links {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+        }
+
+        .header-links a {
+            color: #28a745;
+            text-decoration: none;
+            padding: 8px 15px;
+            border-radius: 4px;
+            transition: background-color 0.3s;
+        }
+
+        .header-links a:hover {
+            background-color: #f8f9fa;
+        }
+
+        .page-container {
+            max-width: 1200px;
+            margin: 20px auto;
+            display: flex;
+            gap: 20px;
+            padding: 0 20px;
+        }
+
+        .form-container {
+            flex: 2;
+            background: white;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .alerts-container {
+            flex: 1;
+            position: sticky;
+            top: 20px;
+            align-self: flex-start;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        input, textarea, select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+
+        button {
+            background-color: #28a745;
+            color: white;
+            border: none;
+            padding: 10px;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 10px;
+        }
+
+        button:hover {
+            background-color: #218838;
+        }
+
+        .notification {
+            margin-bottom: 10px;
+            padding: 10px;
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+            border-radius: 5px;
+            display: none;
+        }
+
+        .incoming-transfer {
+            padding: 15px;
+            background-color: #cce5ff;
+            color: #004085;
+            border: 1px solid #b8daff;
+            border-radius: 5px;
+            margin-bottom: 10px;
+        }
+    </style>
 </head>
 <body>
-    Uhm, hello?
+    <div class="header">
+        <h1>Patient Record Transfer System</h1>
+        <div class="header-links">
+            <a href="settings.html">Settings</a>
+        </div>
+    </div>
+
+    <div class="page-container">
+        <div class="form-container">
+            <form id="patientForm" action="/add-record" method="post">
+                <div class="form-group">
+                    <label for="patientName">Patient Name:</label>
+                    <input type="text" id="patientName" name="patientName" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="patientAge">Patient Age:</label>
+                    <input type="number" id="patientAge" name="patientAge" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="patientBloodGroup">Blood Group:</label>
+                    <select id="patientBloodGroup" name="patientBloodGroup" required>
+                        <option value="">Select Blood Group</option>
+                        <option value="A+">A+</option>
+                        <option value="A-">A-</option>
+                        <option value="B+">B+</option>
+                        <option value="B-">B-</option>
+                        <option value="O+">O+</option>
+                        <option value="O-">O-</option>
+                        <option value="AB+">AB+</option>
+                        <option value="AB-">AB-</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="patientGender">Gender:</label>
+                    <select id="patientGender" name="patientGender" required>
+                        <option value="">Select Gender</option>
+                        <option value="Male">Male</option>
+                        <option value="Female">Female</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="patientId">Patient ID:</label>
+                    <input type="text" id="patientId" name="patientId" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="patientMedication">Medication:</label>
+                    <textarea id="patientMedication" name="patientMedication" required></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="patientDiagnosis">Diagnosis:</label>
+                    <textarea id="patientDiagnosis" name="patientDiagnosis" required></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="patientCurrentCondition">Current Condition:</label>
+                    <textarea id="patientCurrentCondition" name="patientCurrentCondition" required></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="patientWeight">Weight (kg):</label>
+                    <input type="number" id="patientWeight" name="patientWeight" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="toHospitalId">To Hospital ID:</label>
+                    <input type="text" id="toHospitalId" name="toHospitalId" required>
+                </div>
+
+                <button type="submit">Submit</button>
+            </form>
+            <div id="notification" class="notification"></div>
+        </div>
+
+        <div class="alerts-container">
+            <div id="incomingTransfer" class="incoming-transfer">
+                No incoming transfers
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // document.getElementById('patientForm').addEventListener('submit', function(event) {
+        //     event.preventDefault();
+
+        //     const patientData = {
+        //         name: document.getElementById('patientName').value,
+        //         age: document.getElementById('patientAge').value,
+        //         blood_group: document.getElementById('patientBloodGroup').value,
+        //         gender: document.getElementById('patientGender').value,
+        //         id: document.getElementById('patientId').value,
+        //         medication: document.getElementById('patientMedication').value,
+        //         diagnosis: document.getElementById('patientDiagnosis').value,
+        //         current_condition: document.getElementById('patientCurrentCondition').value,
+        //         weight: document.getElementById('patientWeight').value,
+        //         to_hospital_id: document.getElementById('toHospitalId').value,
+        //         status: 'initiated'
+        //     };
+
+        //     fetch('your-backend-url', {
+        //         method: 'POST',
+        //         headers: {
+        //             'Content-Type': 'application/json'
+        //         },
+        //         body: JSON.stringify(patientData)
+        //     })
+        //     .then(response => {
+        //         if (response.ok) {
+        //             document.getElementById('notification').innerText = 'Record submitted successfully!';
+        //             document.getElementById('notification').style.display = 'block';
+        //             document.getElementById('patientForm').reset();
+        //         } else {
+        //             throw new Error('Network response was not ok.');
+        //         }
+        //     })
+        //     .catch(error => {
+        //         document.getElementById('notification').innerText = 'Error submitting record: ' + error.message;
+        //         document.getElementById('notification').style.display = 'block';
+        //     });
+        // });
+
+        // Simulate periodic checks for incoming transfers (replace with actual backend polling)
+        var url = window.location.href.trimEnd('/') + "/get-all-public-records";
+        setInterval(() => {
+            fetch('your-backend-url/incoming-transfers')
+            .then(response => response.json())
+            .then(data => {
+                if (data && data.hasNewTransfers) {
+                    document.getElementById('incomingTransfer').innerText = 'New patient transfer received!';
+                }
+            })
+            .catch(error => {
+                console.error('Error checking for transfers:', error);
+            });
+        }, 30000); // Check every 30 seconds
+    </script>
 </body>
 </html>

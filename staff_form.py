@@ -1,15 +1,16 @@
-from flask import Blueprint, request, make_response, redirect, render_template, session
+import bson.json_util
+from flask import Blueprint, request, make_response, redirect, render_template, session, flash
 from werkzeug.security import check_password_hash
 import random
 from data import verify_jwt_token, generate_jwt_token, decode_jwt_token
 from dotenv import load_dotenv
 from os import environ
 import datetime
-from db import StaffDB, PrivateRecordDB, PublicRecordDB
+from db import HospitalDB, StaffDB, PrivateRecordDB, PublicRecordDB, GeneratedPatientID
+import bson
 
 staff_token_list = {}
 
-generated_ids = []
 
 load_dotenv()
 SECRET_KEY = environ.get('SECRET_KEY')
@@ -21,7 +22,13 @@ def generate_patient_id(hospital_id):
     for i in range(5):
         ran += str(random.randint(0, 9))
 
-    if PrivateRecordDB().get_record(ran, hospital_id) or ran in generated_ids:
+    fnd = False
+    for i in GeneratedPatientID().get_ids(hospital_id):
+        if i['id'] == ran:
+            fnd = True
+            break
+
+    if PrivateRecordDB().get_record(ran) or fnd:
         return generate_patient_id(hospital_id)
     return ran
 
@@ -46,10 +53,15 @@ def staff_login():
         
         username = request.form['email']
         password = request.form['password']
+        
         db = StaffDB()
+        hdb = HospitalDB()
         user = db.get_staff(username)
+        
         if not user or not db.check_password(username, password):
-            return 'Invalid credentials', 403
+            # flash('Invalid username or password')
+            print('Invalid username or password') # FIXME: REMOVE THIS
+            return render_template('staff_login.html', err='Invalid username or password')
         token = generate_jwt_token(username, password, 'staff')
         response = make_response(redirect('/staff'))
         response.set_cookie('username', username, expires=datetime.datetime.now() + datetime.timedelta(days=15))
@@ -57,9 +69,12 @@ def staff_login():
         response.set_cookie('role', 'staff', expires=datetime.datetime.now() + datetime.timedelta(days=15))
         if 'username' not in session:
             session['username'] = {'username': username, 'ids': []}
+        h = hdb.get_hospital_by_id(user['hospital_id'])
+        print(h) # FIXME: REMOVE THIS
+        g = GeneratedPatientID()
         for i in range(10):
-            id_tmp = generate_patient_id(user['hospital_id'])
-            generated_ids.append(id_tmp)
+            id_tmp = generate_patient_id(h['id'])
+            g.add_id(h['id'], id_tmp)
             session['username']['ids'].append(id_tmp)
         return response
     
@@ -75,9 +90,11 @@ def staff_login():
 def add_record():
     if request.method == 'POST':
         db = StaffDB()
+        hdb = HospitalDB()
+        
         if not verify_jwt_token(request.cookies.get('JWT'), request.cookies.get('username'), 'staff'):
             return 'Invalid token', 403
-        user = db.find_one({'username': request.cookies.get('username')})
+        user = db.get_staff(request.cookies.get('username'))
         if not user:
             return 'Invalid token', 403
         
@@ -85,8 +102,13 @@ def add_record():
         patient_age = request.form['patient_age']
         patient_blood_group = request.form['patient_blood_group']
         # patient_id = generate_patient_id(user['hospital_id'])
+        
         patient_id = session['username']['ids'].pop()
-        session['username']['ids'].append(patient_id)
+        g = GeneratedPatientID()
+        g.remove_id(patient_id)
+        x = generate_patient_id(hdb.get_hospital(user['hospital_id'])['id'])
+        session['username']['ids'].append(x)
+        g.add_id(x, hdb.get_hospital(user['hospital_id'])['id'])
         patient_medication = request.form['patient_medication']
         patient_diagnosis = request.form['patient_diagnosis']
         patient_current_condition = request.form['patient_current_condition']
@@ -99,11 +121,12 @@ def add_record():
         priv = PrivateRecordDB()
         pub = PublicRecordDB()
 
-        pub.add_record(to_hospital_id, patient_id, patient_medication, patient_diagnosis, patient_current_condition)
+        pub.add_record(to_hospital_id, from_hospital_id, patient_id, patient_medication, patient_diagnosis, patient_current_condition)
         priv.add_record(to_hospital_id, from_hospital_id, patient_name, patient_age, patient_blood_group, patient_id, patient_medication, patient_diagnosis, patient_current_condition, patient_gender, patient_weight)
 
-        return 'Record added', 200
-    return render_template('add_record.html')
+        # return 'Record added', 200
+        return redirect('/staff')
+    return render_template('staff_index.html')
 
 # Get private record
 @staff_routing.route('/get-record', methods=['POST', 'GET'])
@@ -112,15 +135,17 @@ def get_record():
         db = StaffDB()
         if not verify_jwt_token(request.cookies.get('JWT'), request.cookies.get('username'), 'staff'):
             return 'Invalid token', 403
-        user = db.find_one({'username': request.cookies.get('username')})
+        user = db.get_staff(request.cookies.get('username'))
         if not user:
             return 'Invalid token', 403
         
         patient_id = request.form['patient_id']
-        patient_pswd = request.form['patient_pswd']
+        # patient_pswd = request.form['patient_pswd']
         priv = PrivateRecordDB() # TODO: Add patient password to calling of db.
+        priv.complete_status(patient_id)
         record = priv.get_record(patient_id)
-        return record, 200
+        # print(record) # FIXME: REMOVE THIS
+        return bson.json_util.dumps(record), 200
     return render_template('get_record.html')
 
 # Get public record
@@ -130,7 +155,7 @@ def get_public_record():
         db = StaffDB()
         if not verify_jwt_token(request.cookies.get('JWT'), request.cookies.get('username'), 'staff'):
             return 'Invalid token', 403
-        user = db.find_one({'username': request.cookies.get('username')})
+        user = db.get_staff(request.cookies.get('username'))
         if not user:
             return 'Invalid token', 403
         
@@ -138,8 +163,9 @@ def get_public_record():
         pub = PublicRecordDB()
         s = StaffDB()
         hospital_id = s.get_staff(user['email'])['hospital_id']
-        record = pub.get_record(patient_id, hospital_id)
-        return record, 200
+        record = pub.get_record(patient_id)
+        pub.complete_status(patient_id)
+        return bson.json_util.dumps(record), 200
     return render_template('get_public_record.html')
 
 # Get all public records
@@ -147,17 +173,17 @@ def get_public_record():
 def get_all_public_records():
     if request.method == 'POST':
         db = StaffDB()
-        if not verify_jwt_token(request.cookies.get('JWT'), 'staff'):
+        if not verify_jwt_token(request.cookies.get('JWT'), request.cookies.get('username'), 'staff'):
             return 'Invalid token', 403
-        user = db.find_one({'username': decode_jwt_token(request.cookies.get('JWT'))['user']})
+        user = db.get_staff( request.cookies.get('username'))
         if not user:
             return 'Invalid token', 403
         
         pub = PublicRecordDB()
         s = StaffDB()
         hospital_id = s.get_staff(user['email'])['hospital_id']
-        records = pub.get_all_records(hospital_id)
-        return records, 200
+        records = pub.get_records(hospital_id)
+        return bson.json_util.dumps(records), 200
     return render_template('get_all_public_records.html')
 
 

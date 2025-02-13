@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hospital Search</title>
+  <style>
+    body {
+      background-image: url('https://i.pinimg.com/736x/05/3e/d0/053ed029ae7832cf07a776ed719ff164.jpg');
+      background-size: cover;
+      background-position: 0 0;
+      background-repeat: no-repeat;
+      background-attachment: fixed;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+    }
+
+    header {
+      background-color: #6FD6DB;
+      color: white;
+      text-align: center;
+      padding: 20px;
+      width: 100%;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 1000;
+    }
+
+    header h1 {
+      margin: 0;
+      font-size: 3em;
+      font-weight: bold;
+    }
+
+    nav {
+      background-color: #333;
+      width: 100%;
+      position: fixed;
+      top: 90px;
+      left: 0;
+      right: 0;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      z-index: 999;
+    }
+
+    nav ul {
+      list-style-type: none;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      justify-content: center;
+    }
+
+    nav ul li {
+      margin: 15px;
+    }
+
+    nav ul li a {
+      color: white;
+      text-decoration: none;
+      font-size: 1.2em;
+      font-weight: 600;
+      padding: 8px 20px;
+      transition: background-color 0.3s ease;
+    }
+
+    nav ul li a:hover {
+      background-color: #444;
+      border-radius: 4px;
+    }
+
+    .search-section {
+      padding: 150px 50px 50px;
+      text-align: center;
+    }
+
+    .section-title {
+      font-size: 2rem;
+      margin-bottom: 20px;
+      color: #2b4647;
+    }
+
+    .search-filters {
+      margin-bottom: 30px;
+    }
+
+    .search-input,
+    .filter-select {
+      padding: 10px;
+      margin: 10px 5px;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+      font-size: 16px;
+    }
+
+    .filter-select {
+      width: 200px;
+    }
+
+    .hospital-list {
+      text-align: left;
+      margin-top: 20px;
+    }
+
+    .hospital-area {
+      background-color: #fff;
+      padding: 15px;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+      margin-bottom: 15px;
+    }
+
+    .hospital-area h3 {
+      font-size: 18px;
+      margin-bottom: 10px;
+      color: #333;
+    }
+
+    .hospital-sublist {
+      list-style: none;
+      padding-left: 15px;
+    }
+
+    .hospital-item {
+      padding: 8px;
+      border-bottom: 1px solid #eee;
+    }
+
+    @media (max-width: 600px) {
+      .search-input,
+      .filter-select {
+        width: 90%;
+      }
+
+      nav ul {
+        flex-direction: column;
+      }
+
+      nav ul li a {
+        font-size: 14px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <header>
+    <h1>EmPaRT</h1>
+  </header>
+
+  <nav>
+    <ul>
+      <li><a href="admin.html">Home</a></li>
+      <li><a href="login.html">Log-out</a></li>
+    </ul>
+  </nav>
+
+  <section id="hospitalSearch" class="search-section">
+    <h2 class="section-title">Hospital Search</h2>
+
+    <div class="search-filters">
+      <input type="text" id="searchHospital" placeholder="Search hospitals..." aria-label="Search hospitals" class="search-input" onkeyup="filterHospitals()">
+      <select id="locality" class="filter-select" aria-label="Select Locality" onchange="filterHospitals()">
+        <option value="">Select Locality</option>
+        <option value="City">City</option>
+        <option value="Green Valley">Green Valley</option>
+      </select>
+      <select id="district" class="filter-select" aria-label="Select District" onchange="filterHospitals()">
+        <option value="">Select District</option>
+        <option value="District 1">District 1</option>
+        <option value="District 2">District 2</option>
+      </select>
+      <select id="state" class="filter-select" aria-label="Select State" onchange="filterHospitals()">
+        <option value="">Select State</option>
+        <option value="State A">State A</option>
+        <option value="State B">State B</option>
+      </select>
+    </div>
+
+    <div id="hospitalListContainer" class="hospital-list"></div>
+  </section>
+
+  <script>
+    const hospitals = [
+      { name: "City General Hospital", locality: "City", district: "District 1", state: "State A" },
+      { name: "Green Valley Medical", locality: "Green Valley", district: "District 2", state: "State A" },
+      { name: "Metro City Hospital", locality: "City", district: "District 1", state: "State B" },
+      { name: "Valley View Clinic", locality: "Green Valley", district: "District 2", state: "State B" }
+    ];
+
+    function filterHospitals() {
+      const searchQuery = document.getElementById("searchHospital").value.toLowerCase();
+      const selectedLocality = document.getElementById("locality").value;
+      const selectedDistrict = document.getElementById("district").value;
+      const selectedState = document.getElementById("state").value;
+
+      const filteredHospitals = hospitals.filter(hospital => {
+        return (
+          (selectedLocality === "" || hospital.locality === selectedLocality) &&
+          (selectedDistrict === "" || hospital.district === selectedDistrict) &&
+          (selectedState === "" || hospital.state === selectedState) &&
+          (searchQuery === "" || hospital.name.toLowerCase().includes(searchQuery))
+        );
+      });
+
+      displayHospitals(filteredHospitals);
+    }
+
+    function displayHospitals(hospitalList) {
+      const container = document.getElementById("hospitalListContainer");
+      container.innerHTML = "";
+
+      const groupedHospitals = {};
+
+      hospitalList.forEach(hospital => {
+        const key = `${hospital.locality}, ${hospital.district}, ${hospital.state}`;
+        if (!groupedHospitals[key]) {
+          groupedHospitals[key] = [];
+        }
+        groupedHospitals[key].push(hospital.name);
+      });
+
+      if (hospitalList.length === 0) {
+        container.innerHTML = "<p>No hospitals found based on your search criteria.</p>";
+        return;
+      }
+
+      for (const area in groupedHospitals) {
+        const section = document.createElement("div");
+        section.classList.add("hospital-area");
+
+        const title = document.createElement("h3");
+        title.textContent = area;
+        section.appendChild(title);
+
+        const list = document.createElement("ul");
+        list.classList.add("hospital-sublist");
+        groupedHospitals[area].forEach(name => {
+          const listItem = document.createElement("li");
+          listItem.classList.add("hospital-item");
+          listItem.textContent = name;
+          list.appendChild(listItem);
+        });
+
+        section.appendChild(list);
+        container.appendChild(section);
+      }
+    }
+
+    // Initial display of all hospitals
+    displayHospitals(hospitals);
+  </script>
+</body>
+
+</html>

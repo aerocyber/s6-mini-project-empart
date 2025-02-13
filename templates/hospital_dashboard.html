@@ -137,16 +137,19 @@
         }
 
         input[type="text"],
+        input[type="email"],
         input[type="password"] {
             padding: 12px;
             font-size: 1.1em;
-            width: 100%;
+            width: 90%;
+            align-items: center;
             border: 2px solid #ccc;
             border-radius: 6px;
             transition: border-color 0.3s ease;
         }
 
         input[type="text"]:focus,
+        input[type="email"]:focus,
         input[type="password"]:focus {
             border-color: #6FD6DB;
             outline: none;
@@ -233,12 +236,13 @@
             <li><a href="javascript:void(0);" onclick="showSection('hospital-profile')">Hospital Profile</a></li>
             <li><a href="javascript:void(0);" onclick="showSection('staff')">Add Staff</a></li>
             <li><a href="javascript:void(0);" onclick="showSection('key-pair')">Key Pair Management</a></li>
-            <li><a href="hospitall.html" >Log-out </a></li>
+            <li><a href="/logout" >Log-out </a></li>
         </ul>
     </nav>
 
     <!-- Dashboard Section -->
     <section id="dashboard">
+        <!-- TODO: FIXME - Dummy data with actual data -->
         <h2>Dashboard</h2>
         <p>Welcome to the emergency record transfer system.</p>
         <div>
@@ -258,10 +262,8 @@
             <h2>Hospital Profile</h2>
             <!-- Hospital Profile Picture -->
             <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSgu4XwvoYGYxtYGq-PV57qAw0FAFFFcGimpw&s" alt="Hospital Profile Picture" style="border-radius: 50%; width: 150px; height: 150px; object-fit: cover;">
-            <p>Hospital Name: <strong>ABC Hospital</strong></p>
-            <p>Location: <strong>kottayam</strong></p>
-            <p>Phone No: <strong>+91 0000004720</strong></p>
-            <p>Email: <strong>abchospital@gmail.com</strong></p>
+            <p>Hospital Name: <strong>{{hospital_name}}</strong></p>
+            <p>Location: <strong>{{location}}</strong></p>
         </section>
     </div>
 
@@ -269,12 +271,12 @@
     <div class="form-container">
         <section id="key-pair">
             <h2>Key Pair Management</h2>
-            <form>
+            <form action="/hospital/keypair" method="post">
                 <label for="public-key">Add Public Key:</label>
-                <input type="text" id="public-key" name="public-key" required>
+                <input type="text" id="public-key" name="public_key" required>
 
                 <label for="private-key">Add Private Key:</label>
-                <input type="text" id="private-key" name="private-key" required>
+                <input type="text" id="private-key" name="private_key" required>
 
                 <button type="submit">Save Keys</button>
             </form>
@@ -285,21 +287,21 @@
     <div class="form-container">
         <section id="staff">
             <h2>Add Staff</h2>
-            <form>
-                <label for="first-name">First Name:</label>
-                <input type="text" id="first-name" name="first-name" required>
+            <form action="/hospital/add-staff" method="post">
+                <label for="first-name">Name:</label>
+                <input type="text" id="first-name" name="staff_name" required>
 
-                <label for="last-name">Last Name:</label>
-                <input type="text" id="last-name" name="last-name" required>
+                <!-- <label for="last-name">Last Name:</label>
+                <input type="text" id="last-name" name="last-name" required> -->
 
-                <label for="phone">Phone Number:</label>
-                <input type="text" id="phone" name="phone" required>
+                <label for="staff_email">Email ID:</label>
+                <input type="email" id="staff_email" name="staff_email" required>
 
-                <label for="unique-id">Unique ID:</label>
-                <input type="text" id="unique-id" name="unique-id" required>
+                <!-- <label for="unique-id">Unique ID:</label>
+                <input type="text" id="unique-id" name="unique-id" required> -->
 
                 <label for="default-password">Password:</label>
-                <input type="password" id="default-password" name="default-password" required>
+                <input type="password" id="staff_password" name="staff_password" required>
 
                 <button type="submit">Add Staff</button>
             </form>
