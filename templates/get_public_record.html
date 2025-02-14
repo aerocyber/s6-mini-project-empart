@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Patient Record Transfer System</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            padding: 20px;
+            background-color: #f0f7ff;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            color: #1a4b8c;
+            margin-bottom: 20px;
+            text-align: center;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #e6f0ff;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            background-color: white;
+        }
+
+        th,
+        td {
+            padding: 12px 15px;
+            text-align: left;
+            border: 1px solid #cce0ff;
+        }
+
+        th {
+            background-color: #1a4b8c;
+            color: white;
+            font-weight: bold;
+        }
+
+        tr:hover {
+            background-color: #f5f9ff;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f8fbff;
+        }
+
+        .status-completed {
+            color: #0066cc;
+            font-weight: bold;
+        }
+
+        .status-pending {
+            color: #ff9900;
+            font-weight: bold;
+        }
+
+        @media screen and (max-width: 600px) {
+            table {
+                display: block;
+                overflow-x: auto;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>Patient Record Transfer</h1>
+        <table>
+            <tr>
+                <th>Field</th>
+                <th>Details</th>
+            </tr>
+            <tr>
+                <td>Name</td>
+                <td>{{record.name}}</td>
+            </tr>
+            <tr>
+                <td>Age</td>
+                <td>{{record.age}}</td>
+            </tr>
+            <tr>
+                <td>Blood Group</td>
+                <td>{{record.blood_group}}</td>
+            </tr>
+            <tr>
+                <td>Gender</td>
+                <td>{{record.gender}}</td>
+            </tr>
+            <tr>
+                <td>ID</td>
+                <td>{{record.id}}</td>
+            </tr>
+            <tr>
+                <td>Medication</td>
+                <td>{{record.medication}}</td>
+            </tr>
+            <tr>
+                <td>Diagnosis</td>
+                <td>{{record.diagnosis}}</td>
+            </tr>
+            <tr>
+                <td>Current Condition</td>
+                <td>{{record.current_condition}}</td>
+            </tr>
+            <tr>
+                <td>Weight</td>
+                <td>{{record.weight}}</td>
+            </tr>
+            <tr>
+                <td>To Hospital ID</td>
+                <td>{{record.to_hospital_id}}</td>
+            </tr>
+            <tr>
+                <td>From Hospital ID</td>
+                <td>{{record.from_hospital_id}}</td>
+            </tr>
+            <tr>
+                <td>Status</td>
+                <td class="status-completed">{{record.status}}</td>
+            </tr>
+        </table>
+    </div>
+</body>
+
+</html>

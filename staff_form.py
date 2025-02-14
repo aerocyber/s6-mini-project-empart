@@ -149,7 +149,7 @@ def get_record():
     return render_template('get_record.html')
 
 # Get public record
-@staff_routing.route('/get-public-record', methods=['POST', 'GET'])
+@staff_routing.route('/get-public-record', methods=['POST'])
 def get_public_record():
     if request.method == 'POST':
         db = StaffDB()
@@ -160,13 +160,28 @@ def get_public_record():
             return 'Invalid token', 403
         
         patient_id = request.form['patient_id']
-        pub = PublicRecordDB()
+        pub = PrivateRecordDB()
         s = StaffDB()
         hospital_id = s.get_staff(user['email'])['hospital_id']
         record = pub.get_record(patient_id)
         pub.complete_status(patient_id)
         return bson.json_util.dumps(record), 200
-    return render_template('get_public_record.html')
+    
+@staff_routing.route('/get-public-record/<patient_id>', methods=['GET'])
+def get_public_record_by_id(patient_id):
+    db = StaffDB()
+    if not verify_jwt_token(request.cookies.get('JWT'), request.cookies.get('username'), 'staff'):
+        return 'Invalid token', 403
+    user = db.get_staff(request.cookies.get('username'))
+    if not user:
+        return 'Invalid token', 403
+    
+    pub = PrivateRecordDB()
+    s = StaffDB()
+    hospital_id = s.get_staff(user['email'])['hospital_id']
+    record = pub.get_record(patient_id)
+    pub.complete_status(patient_id)
+    return render_template('get_public_record.html', record=record)
 
 # Get all public records
 @staff_routing.route('/get-all-public-records', methods=['POST', 'GET'])

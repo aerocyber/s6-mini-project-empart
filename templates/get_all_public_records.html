@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Public Records</title>
-    <link rel="stylesheet" href="styles.css">
     <style>
         .card {
             border: 1px solid #ccc;
@@ -18,6 +17,10 @@
             flex-wrap: wrap;
             justify-content: space-around;
         }
+        a {
+            text-decoration: none;
+            color: black;
+        }
     </style>
 </head>
 <body>
@@ -25,7 +28,7 @@
     <div class="card-container">
         {% if records %}
             {% for record in records %}
-                <div class="card">
+                <a href="/staff/get-public-record/{{ record.id }}"><div class="card">
                     <h2>ID: {{ record.id }}</h2>
                     <!-- <p><strong>Name:</strong> {{ record.name }}</p> -->
                     <p><strong>From:</strong> {{ record.from_hospital_id }}</p>
@@ -34,7 +37,7 @@
                     <p><strong>Current Condition:</strong> {{ record.current_condition }}</p>
                     <p><strong>Status:</strong> {{ record.status }}</p>
                     <!-- <p><strong>Date:</strong> {{ record.date }}</p> --> <!-- TODO: Add date-->
-                </div>
+                </div></a>
             {% endfor %}
         {% else %}
             <p>No record transfers initiated to this hospital yet</p>
