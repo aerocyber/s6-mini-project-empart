@@ -2,6 +2,7 @@ from pymongo import MongoClient
 from os import environ
 from dotenv import load_dotenv
 from werkzeug.security import generate_password_hash, check_password_hash
+import datetime
 
 load_dotenv()
 
@@ -24,12 +25,14 @@ class HospitalDB:
             'email': email,
             'name': hospital_name,
             'location': hospital_location,
-            'password': generate_password_hash(password)
+            'password': generate_password_hash(password),
+            'datetime': datetime.datetime.now()
         }
         hospital_pub = {
             'id': hospital_id,
             'name': hospital_name,
-            'location': hospital_location
+            'location': hospital_location,
+            'datetime': datetime.datetime.now()
         }
         if self.hospital_priv.find_one({'email': email}):
             return 'Email already exists'
@@ -43,7 +46,7 @@ class HospitalDB:
         return self.hospital_pub.find_one({'id': hospital_id})
     
     def get_hospitals(self):
-        return self.hospital_pub.find()
+        return self.hospital_pub.find({})
     
     def get_hospital_priv(self, email):
         return self.hospital_priv.find_one({'email': email})
@@ -86,7 +89,8 @@ class StaffDB:
             'name': staff_name,
             'email': staff_email,
             'password': generate_password_hash(staff_password),
-            'hospital_id': hospital_id
+            'hospital_id': hospital_id,
+            'datetime': datetime.datetime.now()
         }
         self.staff.insert_one(staff)
 
@@ -95,6 +99,9 @@ class StaffDB:
     
     def get_staffs(self):
         return self.staff.find()
+    
+    def get_staff_by_hospital(self, hospital_id):
+        return self.staff.find({'hospital_id': hospital_id})
     
     def remove_staff(self, staff_email, hospital_id):
         self.staff.delete_one({'email': staff_email, 'hospital_id': hospital_id})
@@ -128,7 +135,8 @@ class PrivateRecordDB:
             'weight': patient_weight,
             'to_hospital_id': to_hospital_id,
             'from_hospital_id': from_hospital_id,
-            'status': 'initiated'
+            'status': 'initiated',
+            'datetime': datetime.datetime.now()
         }
 
         # TODO: Encryption goes here
@@ -138,6 +146,10 @@ class PrivateRecordDB:
     def get_record(self, patient_id):
         # TODO: Decryption goes here
         return self.private_record.find_one({'id': patient_id})
+    
+    def cleanup(self):
+        # Delete records older than a day and of status 'initiated'
+        self.private_record.delete_many({'datetime': {'$lt': datetime.datetime.now() - datetime.timedelta(days=1)}, 'status': 'initiated'})
     
     def get_records(self):
         # TODO: Decryption goes here
@@ -189,10 +201,15 @@ class PublicRecordDB:
             'current_condition': patient_current_condition,
             'to_hospital_id': to_hospital_id,
             'from_hospital_id': from_hospital_id,
-            'status': 'initiated'
+            'status': 'initiated',
+            'datetime': datetime.datetime.now()
         }
 
         self.public_record.insert_one(record)
+
+    def cleanup(self):
+        # Delete records older than a day and of status 'initiated'
+        self.public_record.delete_many({'datetime': {'$lt': datetime.datetime.now() - datetime.timedelta(days=1)}, 'status': 'initiated'})
 
     def get_record(self, patient_id):
         # TODO: Decryption goes here
@@ -238,7 +255,7 @@ class GeneratedPatientID:
         self.generated_patient_id = db['generated_patient_id']
     
     def add_id(self, patient_id, hospital_id):
-        self.generated_patient_id.insert_one({'id': patient_id, 'hospital_id': hospital_id})
+        self.generated_patient_id.insert_one({'id': patient_id, 'hospital_id': hospital_id, 'datetime': datetime.datetime.now()})
 
     def get_ids(self, hospital_id):
         return self.generated_patient_id.find({'hospital_id': hospital_id})
@@ -249,4 +266,6 @@ class GeneratedPatientID:
     def get_count(self):
         return self.generated_patient_id.count_documents({})
     
-
+    def cleanup(self):
+        # Delete records older than a day
+        self.generated_patient_id.delete_many({'datetime': {'$lt': datetime.datetime.now() - datetime.timedelta(days=1)}})  

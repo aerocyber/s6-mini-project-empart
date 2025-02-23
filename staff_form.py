@@ -38,7 +38,11 @@ def generate_patient_id(hospital_id):
 def index():
     if request.cookies.get('JWT'):
         if verify_jwt_token(request.cookies.get('JWT'), request.cookies.get('username'), 'staff'):
-            return render_template('staff_index.html')
+            hdb = HospitalDB()
+            h = []
+            for i in hdb.get_hospitals():
+                h.append([i['id'], i['name'], i['location']])
+            return render_template('staff_index.html', hospital_list=h)
         return redirect('/logout')
     return redirect('/staff/login')
 
@@ -113,9 +117,10 @@ def add_record():
         patient_diagnosis = request.form['patient_diagnosis']
         patient_current_condition = request.form['patient_current_condition']
         patient_gender  = request.form['patient_gender']
-        patient_weight = request.form['patient_weight']
+        patient_weight = request.form['patient_weight'] or 'Not Available'
         from_hospital_id = user['hospital_id']
         to_hospital_id = request.form['to_hospital_id']
+        notes = request.form['notes']
 
         # TODO: Add patient password to calling of db.
         priv = PrivateRecordDB()
@@ -180,7 +185,7 @@ def get_public_record_by_id(patient_id):
     s = StaffDB()
     hospital_id = s.get_staff(user['email'])['hospital_id']
     record = pub.get_record(patient_id)
-    pub.complete_status(patient_id)
+    # pub.complete_status(patient_id)
     return render_template('get_public_record.html', record=record)
 
 # Get all public records
@@ -214,4 +219,11 @@ def get_all_public_records():
     records = pub.get_records(hospital_id)
     return render_template('get_all_public_records.html', records=records)
 
-
+@staff_routing.route('/search/', methods=['POST'])
+def search():
+    patient_id = request.form['patient_id']
+    d = PublicRecordDB()
+    record = d.get_record(patient_id)
+    if record:
+        return redirect(f'/staff/get-public-record/{patient_id}')
+    return render_template('search.html', searcherr='Record not found')

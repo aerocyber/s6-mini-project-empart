@@ -161,9 +161,9 @@
 
   <!-- Navigation Bar -->
   <nav>
-    <a href="/hospital-search">Hospital List</a> <!-- TODO: Hospital List-->
+    <!-- <a href="/hospital-search">Hospital List</a> TODO: Hospital List -->
     <a href="/admin/add-hospital">Add Hospital</a>
-    <a href="/admin/delete-hospital">Remove Hospital</a> <!-- TODO: Delete hospital-->
+    <!-- <a href="/admin/delete-hospital">Remove Hospital</a> TODO: Delete hospital -->
     <a href="/logout">Logout</a>
   </nav>
 
@@ -195,13 +195,17 @@
     <section class="content-section">
       <!-- Hospital List Section -->
       <h2>Hospital List</h2>
-      <ul id="hospitalListContainer">
-        {% for hospital in hospital_list %}
-        <li class="hospital-item">
-          <span>{{ hospital }}</span>
-        </li>
-        {% endfor %}
-      </ul>
+      <form action="/admin/delete-hospital" method="post">
+        <ul id="hospitalListContainer">
+          {% for hospital in hospital_list %}
+          
+          <li class="hospital-item">
+            <span class="hospital-name">{{ hospital[0] }}</span>
+            <button class="delete-hospital" type="submit" name="id" value="{{hospital[1]}}">Delete</button>
+          </li>
+          {% endfor %}
+        </ul>
+      </form>
 
       <!-- Add Hospital Section -->
       <!--<h2>Add Hospital</h2>-->

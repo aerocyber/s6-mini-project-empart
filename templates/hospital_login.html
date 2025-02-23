@@ -110,6 +110,10 @@
             <input type="password" id="password" name="password" required>
 
             <button type="submit">Login</button>
+
+            {% if error %}
+                <p style="color: red;">{{ error }}</p>
+            {% endif %}
         </form>
     </div>
 </body>

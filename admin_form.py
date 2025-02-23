@@ -41,7 +41,7 @@ def index():
         # hospital_list = bson.json_util.dumps(h.get_hospitals())
         hospital_list = []
         for i in h.get_hospitals():
-            hospital_list.append(i['name'])
+            hospital_list.append([i['name'], i['id']])
         print(hospital_list)
         return render_template('admin_dashboard.html', hospital_list=hospital_list)
     if request.cookies.get('JWT'):
@@ -107,7 +107,7 @@ def add_hospital():
 def delete_hospital():
     if request.method == 'GET':
         if verify_jwt_token(request.cookies.get('JWT'), request.cookies.get('username'), 'admin'):
-            return render_template('admin_hosp_search.html')
+            return redirect('/admin')
         return redirect('/logout')
     if verify_jwt_token(request.cookies.get('JWT'), request.cookies.get('username'), 'admin'):
         hospital_id = request.form['id']

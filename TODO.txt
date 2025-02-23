@@ -3,15 +3,13 @@ TODOs
 
 Frontend
 ========
-Encryption
 UI for home, about and related pages
 Get live data in admin dashboard and hospital dashboard
 password change for staff and hospital
-remove hospital
+community driver login, signup, settings, get assigned pages
 
 Backend
 =======
-Encryption
-Decryption
 live data filtering
-Modify DB structure to add a date to each record
+autoswitch target
+community driver module

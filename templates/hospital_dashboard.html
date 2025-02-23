@@ -235,7 +235,7 @@
             <li><a href="javascript:void(0);" onclick="showSection('dashboard')">Dashboard</a></li>
             <li><a href="javascript:void(0);" onclick="showSection('hospital-profile')">Hospital Profile</a></li>
             <li><a href="javascript:void(0);" onclick="showSection('staff')">Add Staff</a></li>
-            <li><a href="javascript:void(0);" onclick="showSection('key-pair')">Key Pair Management</a></li>
+            <li><a href="javascript:void(0);" onclick="showSection('delete-staff')">Delete Staff</a></li>
             <li><a href="/logout" >Log-out </a></li>
         </ul>
     </nav>
@@ -269,16 +269,17 @@
 
     <!-- Key Pair Management Section -->
     <div class="form-container">
-        <section id="key-pair">
-            <h2>Key Pair Management</h2>
-            <form action="/hospital/keypair" method="post">
-                <label for="public-key">Add Public Key:</label>
-                <input type="text" id="public-key" name="public_key" required>
-
-                <label for="private-key">Add Private Key:</label>
-                <input type="text" id="private-key" name="private_key" required>
-
-                <button type="submit">Save Keys</button>
+        <section id="delete-staff">
+            <h2>Remove Staff</h2>
+            <form action="/hospital/delete-staff" method="post">
+                <ul>
+                    {% for s in stafflist %}
+                    <li>
+                        <span>{{ s[0] }}</span> 
+                        <span><button type="submit" name="staff_email" value="{{ s[1] }}">Delete</button></span>
+                    </li>
+                    {% endfor %}
+                </ul>
             </form>
         </section>
     </div>

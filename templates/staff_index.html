@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -76,7 +77,9 @@
             margin-bottom: 5px;
         }
 
-        input, textarea, select {
+        input,
+        textarea,
+        select {
             width: 100%;
             padding: 10px;
             border: 1px solid #ccc;
@@ -118,6 +121,7 @@
         }
     </style>
 </head>
+
 <body>
     <div class="header">
         <h1>Patient Record Transfer System</h1>
@@ -137,7 +141,7 @@
 
                 <div class="form-group">
                     <label for="patientAge">Patient Age:</label>
-                    <input type="number" id="patientAge" name="patient_age" required>
+                    <input type="number" id="patientAge" name="patient_age" required max="120">
                 </div>
 
                 <div class="form-group">
@@ -182,12 +186,21 @@
 
                 <div class="form-group">
                     <label for="patientWeight">Weight (kg):</label>
-                    <input type="number" id="patientWeight" name="patient_weight" required>
+                    <input type="number" id="patientWeight" name="patient_weight">
+                </div>
+
+                <div class="form-group">
+                    <label for="patientNote">Notes:</label>
+                    <textarea id="patientNote" name="notes"></textarea>
                 </div>
 
                 <div class="form-group">
                     <label for="toHospitalId">To Hospital ID:</label>
-                    <input type="text" id="toHospitalId" name="to_hospital_id" required>
+                    <select name="to_hospital_id" id="toHospitalId" required>
+                        {% for hospital in hospital_list %}
+                        <option value="{{ hospital[0] }}">{{ hospital[1] }}, {{hospital[2]}}</option>
+                        {% endfor %}
+                    </select>
                 </div>
 
                 <button type="submit">Submit</button>
@@ -196,9 +209,18 @@
         </div>
 
         <div class="alerts-container">
-            <a href="/staff/get-all-public-records"><button class="incoming-transfer" >
-                Check transfers
-            </button></a>
+            <a href="/staff/get-all-public-records"><button class="incoming-transfer">
+                    Check transfers
+                </button></a>
+
+            <br>
+            <!-- Search -->
+            <form action="/staff/search" method="post">
+                <div class="form-group">
+                    <label for="search">Search:</label>
+                    <input type="text" id="search" name="patient_id" required>
+                    <button type="submit">Search</button>
+                </div>
         </div>
     </div>
 
@@ -244,7 +266,8 @@
 
         // Simulate periodic checks for incoming transfers (replace with actual backend polling)
         var url = window.location.href.trimEnd('/') + "get-all-public-records";
-        
+
     </script>
 </body>
+
 </html>
