@@ -6,11 +6,12 @@ import json
 from dotenv import load_dotenv
 from os import environ
 import datetime
-from db import HospitalDB
+from db import HospitalDB, AdminDB
 from data import generate_jwt_token, verify_jwt_token
 import bson
 
 hospitalDb = HospitalDB()
+adminDB = AdminDB()
 
 admin_token_list = {}
 
@@ -59,8 +60,11 @@ def login():
             return redirect('/logout')
         username = request.form['email']
         password = request.form['password']
-        if username != ADMIN_USER or password != ADMIN_PASS:
-            return 'Invalid credentials', 403
+        # if username != ADMIN_USER or password != ADMIN_PASS:
+        #     return 'Invalid credentials', 403
+
+        if not adminDB.get_admin(username) or not adminDB.check_password(username, password):
+            return render_template('admin_login.html', err="Incorrect credentials")
         user = {
             "id": 1,
             "username": username,
@@ -118,6 +122,8 @@ def delete_hospital():
 # Get hospital id
 @admin_routing.route('/get-hospital-id', methods=['GET'])
 def get_hospital_id():
+    if not verify_jwt_token(request.cookies.get('JWT'), request.cookies.get('username'), 'admin'):
+        return redirect('/logout')
     id = generate_hospital_id(request.form.get('name'))
     # Check if hospital id exists
     if hospitalDb.get_hospital(id):

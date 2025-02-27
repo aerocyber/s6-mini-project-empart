@@ -7,39 +7,41 @@
     <style>
         .container {
             text-align: center;
-        }
-
-        .red {
-            color: aliceblue;
-            background-color: red;
-        }
-
-        .green {
-            color: aliceblue;
-            background-color: green;
-        }
-
-        .blue {
-            color: aliceblue;
-            background-color: blue;
+            margin-top: 20%;
         }
 
         button {
             font-size: large;
             border-radius: 10px;
-            height: 75px;
-            width: 175px;
+            height: 50px;
+            width: 150px;
             border: 0px solid transparent;
             cursor: pointer;
+            transition: all 0.5s ease-in-out;
+        }
 
+        button.admin:hover {
+            transition: all 0.5s ease-in-out;
+            background-color: red;
+            color: white;
+        }
+        button.hospital:hover {
+            transition: all 0.5s ease-in-out;
+            background-color: green;
+            color: white;
+        }
+        button.staff:hover {
+            transition: all 0.5s ease-in-out;
+            background-color: blue;
+            color: white;
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <a href="/admin"><button class="red">Admin Login</button></a>
-        <a href="/hospital"><button class="blue">Hospital Login</button></a>
-        <a href="/staff"><button class="green">Staff Login</button></a>
+        <a href="/admin"><button class="admin">Admin</button></a>
+        <a href="/hospital"><button class="hsopital">Hospital Login</button></a>
+        <a href="/staff"><button class="staff">Staff Login</button></a>
     </div>
 </body>
 </html>

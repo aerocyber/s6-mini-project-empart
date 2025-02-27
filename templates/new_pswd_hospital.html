@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Change Password: Hospital</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        }
+
+        body {
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: #f0f2f5;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 400px;
+            padding: 24px;
+        }
+
+        .header {
+            margin-bottom: 24px;
+            text-align: center;
+        }
+
+        .header h1 {
+            color: #0c8409;
+            font-size: 24px;
+            margin-bottom: 8px;
+        }
+
+        .header p {
+            color: #666;
+            font-size: 14px;
+        }
+
+        .input-group {
+            margin-bottom: 16px;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+            transition: border-color 0.3s ease;
+        }
+
+        .input-group input:focus {
+            outline: none;
+            border-color: #1a73e8;
+        }
+
+        .input-group input.error {
+            border-color: #dc3545;
+        }
+
+        .error-message {
+            color: #dc3545;
+            margin-top: 4px;
+            margin-bottom: 4px;
+            text-align: center;
+            font-size: 17px;
+        }
+
+        .requirements {
+            font-size: 12px;
+            color: #666;
+            margin-top: 8px;
+            background: #f8f9fa;
+            padding: 12px;
+            border-radius: 4px;
+        }
+
+        .requirements ul {
+            margin-left: 20px;
+            margin-top: 4px;
+        }
+
+        .requirements li {
+            margin-bottom: 4px;
+        }
+
+        button[type="submit"] {
+            width: 100%;
+            padding: 12px;
+            background: #0c8409;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background 0.3s ease;
+            margin-top: 8px;
+        }
+
+        button[type="submit"]:hover {
+            background: #15b053;
+        }
+        button {
+            width: 100%;
+            padding: 12px;
+            background: #635f5f;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background 0.3s ease;
+            margin-top: 8px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Set New Password</h1>
+            <p>Create a strong password for your account</p>
+        </div>
+        
+        <form method="POST" action="/hospital/change-password">
+            <div class="input-group">
+                <label for="old-password">Current Password</label>
+                <input type="password" name="old-password" id="old-password" required>
+                <label for="new-password">New Password</label>
+                <input type="password" name="new-password" id="new-password" required>
+                <div class="requirements">
+                    Password must contain:
+                    <ul>
+                        <li>At least 8 characters</li>
+                        <li>At least one uppercase letter</li>
+                        <li>At least one number</li>
+                        <li>At least one special character</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="input-group">
+                <label for="confirm-password">Confirm Password</label>
+                <input type="password" name="confirm-password" id="confirm-password" required>
+            </div>
+
+            {% if err %}
+                <!-- <p style="color: #dc3545; margin-top: 8px;">{{ err }}</p> -->
+                 <p class="error-message">{{err}}</p>
+            {% endif %}
+
+            <button type="submit">Set Password</button>
+            <button onclick="previousPage();">Back</button>
+        </form>
+    </div>
+
+    <script>
+        function validatePassword(event) {
+            event.preventDefault();
+            const newPassword = document.getElementById('new-password').value;
+            const confirmPassword = document.getElementById('confirm-password').value;
+            const regex = /^(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*])[A-Za-z\d!@#$%^&*]{8,}$/;
+            
+            let isValid = true;
+
+            // Validate new password format
+            if (!regex.test(newPassword)) {
+                document.getElementById('new-password').classList.add('error');
+                document.getElementById('new-password').nextElementSibling.classList.add('visible');
+                isValid = false;
+            }
+
+            // Validate password match
+            if (newPassword !== confirmPassword) {
+                document.getElementById('confirm-password').classList.add('error');
+                document.getElementById('confirm-password').nextElementSibling.classList.add('visible');
+                isValid = false;
+            }
+
+            return isValid;
+        }
+
+        // Clear error states on input
+        document.querySelectorAll('input').forEach(input => {
+            input.addEventListener('input', () => {
+                input.classList.remove('error');
+                const errorMessage = input.nextElementSibling;
+                if (errorMessage && errorMessage.classList.contains('error-message')) {
+                    errorMessage.classList.remove('visible');
+                }
+            });
+        });
+
+        document.addEventListener('click', function(event) {
+            if (event.target.tagName === 'BUTTON') {
+                if (event.target.textContent === 'Back') {
+                    event.preventDefault();
+                    location.href = location.origin + '/hospital';
+                }
+            }
+        });
+    </script>
+</body>
+</html>

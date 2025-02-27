@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Patient Record Transfer System</title>
+    <title>Staff Dashboard</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -51,6 +51,7 @@
             display: flex;
             gap: 20px;
             padding: 0 20px;
+            z-index: -1;
         }
 
         .form-container {
@@ -101,14 +102,28 @@
             background-color: #218838;
         }
 
-        .notification {
-            margin-bottom: 10px;
-            padding: 10px;
+        #noti {
+            margin-left: 25%;
+            margin-right: 25%;
+            margin-top: 10%;
+            margin-bottom: auto;
+            position: absolute;
+            padding: 10%;
             background-color: #d4edda;
             color: #155724;
             border: 1px solid #c3e6cb;
+            z-index: 5;
             border-radius: 5px;
+
+            {% if not pid %}
+
             display: none;
+
+            {% else %}
+
+            display: block;
+
+            {% endif %}
         }
 
         .incoming-transfer {
@@ -120,15 +135,32 @@
             margin-bottom: 10px;
         }
     </style>
+
+    <script src='https://cdn.jsdelivr.net/npm/qrcodejs/qrcode.js'></script>
 </head>
 
 <body>
     <div class="header">
         <h1>Patient Record Transfer System</h1>
         <div class="header-links">
-            <a href="settings.html">Settings</a>
+            <a href="/staff/change-password">Change Password</a>
             <a href="/logout">Logout</a>
         </div>
+    </div>
+
+    <div class="noti" id="noti">
+        {% if pid %}
+        <div class="notification" id="notification">
+            Record submitted successfully!<br>
+            Patient ID: {{ pid }} <br>
+            <br>
+            <!-- Print QR Code -->
+            <button onclick="downloadQR()">Download QR Code</button>
+            <br>
+            <button onclick="document.getElementById('noti').remove()">Close</button> <br> <br>
+            <div id="img-qr" div="QR Code"> </div>
+        </div>
+        {% endif %}
     </div>
 
     <div class="page-container">
@@ -205,7 +237,7 @@
 
                 <button type="submit">Submit</button>
             </form>
-            <div id="notification" class="notification"></div>
+
         </div>
 
         <div class="alerts-container">
@@ -266,6 +298,34 @@
 
         // Simulate periodic checks for incoming transfers (replace with actual backend polling)
         var url = window.location.href.trimEnd('/') + "get-all-public-records";
+
+        
+        {% if pid %}
+        var qrcode = new QRCode(document.getElementById("img-qr"), {
+            width: 200,
+            height: 200,
+            text: "{{pid}}"
+        });        
+
+        var popup;
+
+        function closePrint() {
+            if (popup) {
+                popup.close();
+            }
+        }
+
+        function downloadQR() {
+            const canvas = document.querySelector('canvas');
+            if (canvas) {
+                const link = document.createElement('a');
+                link.download = '{{pid}}.png';
+                link.href = canvas.toDataURL('image/png');
+                link.click();
+            }
+        }
+
+        {% endif %}
 
     </script>
 </body>

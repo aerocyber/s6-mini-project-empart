@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Empart: Setup</title>
+    <style>
+        body {
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: linear-gradient(60deg, #4e5969, #0ab632);
+            padding: 20px;
+            margin: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        }
+
+        .container {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 400px;
+            padding: 24px;
+            margin: 0 auto;
+            margin-top: 100px;
+        }
+
+        .form-container {
+            margin-top: 24px;
+            width: 100%;
+            margin-left: 25%;
+            margin-right: 25%;
+        }
+
+        .form-container label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .form-container input {
+            width: 50%;
+            height: 10px;
+            padding: 12px;
+            margin-bottom: 16px;
+        }
+
+        .form-container button {
+            width: 50%;
+            padding: 12px;
+            background: #0c8409;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .header {
+            text-align: center;
+        }
+
+        .header h1 {
+            color: #0c8409;
+            font-size: 30px;
+            margin-bottom: 8px;
+        }
+        .err {
+            width: 50%;
+            text-align: center;
+            color: red;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Empart</h1>
+            <p>Setup Admin</p>
+        </div>
+
+        <div class="form-container">
+            <form action="/setup" method="post">
+                <label for="admin_email">
+                    Email
+                </label>
+                <input type="email" name="admin_email" id="admin_email" required>
+                <label for="admin_password">Password</label>
+                <input type="password" name="admin_password" id="admin_password" required>
+                <label for="confirm_password">Confirm Password</label>
+                <input type="password" name="confirm_password" id="confirm_password" required>
+                <button type="submit">Setup</button>
+
+                {% if error %}
+                    <p class="err">{{ error }}</p>
+                {% endif %}
+            </form>
+        </div>
+    </div>
+</body>
+</html>

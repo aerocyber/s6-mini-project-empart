@@ -1,5 +1,5 @@
 import bson.json_util
-from flask import Blueprint, request, make_response, redirect, render_template, session, flash
+from flask import Blueprint, request, make_response, redirect, render_template, session, url_for
 from werkzeug.security import check_password_hash
 import random
 from data import verify_jwt_token, generate_jwt_token, decode_jwt_token
@@ -8,6 +8,7 @@ from os import environ
 import datetime
 from db import HospitalDB, StaffDB, PrivateRecordDB, PublicRecordDB, GeneratedPatientID
 import bson
+import re
 
 staff_token_list = {}
 
@@ -36,12 +37,15 @@ def generate_patient_id(hospital_id):
 # Index route
 @staff_routing.route('/')
 def index():
+    pid = request.args.get('pid') or None
     if request.cookies.get('JWT'):
         if verify_jwt_token(request.cookies.get('JWT'), request.cookies.get('username'), 'staff'):
             hdb = HospitalDB()
             h = []
             for i in hdb.get_hospitals():
                 h.append([i['id'], i['name'], i['location']])
+            if pid:
+                return render_template('staff_index.html', hospital_list=h, pid=pid)
             return render_template('staff_index.html', hospital_list=h)
         return redirect('/logout')
     return redirect('/staff/login')
@@ -120,17 +124,17 @@ def add_record():
         patient_weight = request.form['patient_weight'] or 'Not Available'
         from_hospital_id = user['hospital_id']
         to_hospital_id = request.form['to_hospital_id']
-        notes = request.form['notes']
+        notes = request.form['notes'] or 'None'
 
         # TODO: Add patient password to calling of db.
         priv = PrivateRecordDB()
         pub = PublicRecordDB()
 
         pub.add_record(to_hospital_id, from_hospital_id, patient_id, patient_medication, patient_diagnosis, patient_current_condition)
-        priv.add_record(to_hospital_id, from_hospital_id, patient_name, patient_age, patient_blood_group, patient_id, patient_medication, patient_diagnosis, patient_current_condition, patient_gender, patient_weight)
+        priv.add_record(notes, to_hospital_id, from_hospital_id, patient_name, patient_age, patient_blood_group, patient_id, patient_medication, patient_diagnosis, patient_current_condition, patient_gender, patient_weight)
 
         # return 'Record added', 200
-        return redirect('/staff')
+        return redirect(url_for('staff_form.index', pid=patient_id))
     return render_template('staff_index.html')
 
 # Get private record
@@ -227,3 +231,38 @@ def search():
     if record:
         return redirect(f'/staff/get-public-record/{patient_id}')
     return render_template('search.html', searcherr='Record not found')
+
+@staff_routing.route('/change-password', methods=['POST', 'GET'])
+def change_password():
+    if request.method == 'POST':
+        db = StaffDB()
+        if not verify_jwt_token(request.cookies.get('JWT'), request.cookies.get('username'), 'staff'):
+            return 'Invalid token', 403
+        user = db.get_staff(request.cookies.get('username'))
+        if not user:
+            return 'Invalid token', 403
+        
+        old_password = request.form['old-password'] or None
+        new_password = request.form['new-password'] or None
+        confirm_password = request.form['confirm-password'] or None
+
+        if old_password == None or new_password == None or confirm_password == None:
+            return render_template('new_pswd_staff.html', err='All fields are required')
+        
+        if not db.check_password(user['email'], old_password):
+            return render_template('new_pswd_staff.html', err='Invalid password') # TODO
+        
+        if new_password != confirm_password:
+            return render_template('new_pswd_staff.html', err='Passwords do not match')
+        
+        p = r'^(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*])[A-Za-z\d!@#$%^&*]{8,}$'
+        if not re.match(p, new_password):
+            return render_template('new_pswd_staff.html', err='Invalid format for password')
+        
+        db.change_password(user['email'], new_password) # TODO
+        return redirect('/staff')
+    if request.cookies.get('JWT'):
+        if verify_jwt_token(request.cookies.get('JWT'), request.cookies.get('username'), 'staff'):
+            return render_template('new_pswd_staff.html')
+        return redirect('/logout')
+    return redirect('/staff/login')

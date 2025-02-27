@@ -2,6 +2,7 @@ from flask import Flask, g, make_response, redirect, session, render_template
 from admin_form import admin_routing
 from hospital_form import hospital_routes
 from staff_form import staff_routing
+from setup import admin_setup
 from dotenv import load_dotenv
 from os import environ
 from apscheduler.schedulers.background import BackgroundScheduler
@@ -29,6 +30,7 @@ app.config['SECRET_KEY'] = SECRET_KEY
 app.register_blueprint(admin_routing, url_prefix='/admin')
 app.register_blueprint(hospital_routes, url_prefix='/hospital')
 app.register_blueprint(staff_routing, url_prefix='/staff')
+app.register_blueprint(admin_setup)
 
 
 @app.route('/')

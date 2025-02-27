@@ -8,6 +8,7 @@ import datetime
 from db import HospitalDB, StaffDB
 from data import generate_jwt_token, verify_jwt_token, decode_jwt_token
 import bson
+import re
 
 hospital_token_list = {}
 
@@ -117,3 +118,38 @@ def remove_staff():
             return redirect('/logout')
         return redirect('/hospital/login')
     return redirect('/hospital')
+
+@hospital_routes.route('/change-password', methods=['POST', 'GET'])
+def change_password():
+    if request.method == 'POST':
+        db = HospitalDB()
+        if not verify_jwt_token(request.cookies.get('JWT'), request.cookies.get('username'), 'hospital'):
+            return 'Invalid token', 403
+        user = db.get_hospital_priv(request.cookies.get('username'))
+        if not user:
+            return 'Invalid token', 403
+        
+        old_password = request.form['old-password'] or None
+        new_password = request.form['new-password'] or None
+        confirm_password = request.form['confirm-password'] or None
+
+        if old_password == None or new_password == None or confirm_password == None:
+            return render_template('new_pswd_hospital.html', err='All fields are required')
+        
+        if not db.check_password(user['email'], old_password):
+            return render_template('new_pswd_hospital.html', err='Invalid password') # TODO
+        
+        if new_password != confirm_password:
+            return render_template('new_pswd_hospital.html', err='Passwords do not match')
+        
+        p = r'^(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*])[A-Za-z\d!@#$%^&*]{8,}$'
+        if not re.match(p, new_password):
+            return render_template('new_pswd_hospital.html', err='Invalid format for password')
+        
+        db.change_password(user['email'], new_password) # TODO
+        return redirect('/hospital')
+    if request.cookies.get('JWT'):
+        if verify_jwt_token(request.cookies.get('JWT'), request.cookies.get('username'), 'hospital'):
+            return render_template('new_pswd_hospital.html')
+        return redirect('/logout')
+    return redirect('/staff/login')

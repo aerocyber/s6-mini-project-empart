@@ -77,6 +77,9 @@ class HospitalDB:
         self.hospital_priv.update_one({'email': email}, {'$set': {'public_key': public_key, 'private_key': private_key}})
         id = self.get_hospital(email)['id']
         self.hospital_pub.update_one({'id': id}, {'$set': {'public_key': public_key}})
+
+    def change_password(self, email, new_password):
+        self.hospital_priv.update_one({'email': email}, {'$set': {'password': generate_password_hash(new_password)}})
     
     
 
@@ -114,6 +117,9 @@ class StaffDB:
     
     def check_password(self, staff_email, pswd):
         return check_password_hash(self.staff.find_one({'email': staff_email})['password'], pswd)
+    
+    def change_password(self, staff_email, new_password):
+        self.staff.update_one({'email': staff_email}, {'$set': {'password': generate_password_hash(new_password)}})
 
 
     
@@ -122,13 +128,14 @@ class PrivateRecordDB:
     def __init__(self):
         self.private_record = db['private_record']
 
-    def add_record(self, to_hospital_id, from_hospital_id, patient_name, patient_age, patient_blood_group, patient_id, patient_medication, patient_diagnosis, patient_current_condition, patient_gender, patient_weight):
+    def add_record(self, notes, to_hospital_id, from_hospital_id, patient_name, patient_age, patient_blood_group, patient_id, patient_medication, patient_diagnosis, patient_current_condition, patient_gender, patient_weight):
         record = {
             'name': patient_name,
             'age': patient_age,
             'blood_group': patient_blood_group,
             'gender': patient_gender,
             'id': patient_id,
+            'notes': notes,
             'medication': patient_medication,
             'diagnosis': patient_diagnosis,
             'current_condition': patient_current_condition,
@@ -269,3 +276,33 @@ class GeneratedPatientID:
     def cleanup(self):
         # Delete records older than a day
         self.generated_patient_id.delete_many({'datetime': {'$lt': datetime.datetime.now() - datetime.timedelta(days=1)}})  
+
+class AdminDB:
+    def __init__(self):
+        self.admin = db['admin']
+
+    def add_admin(self, email, password):
+        admin = {
+            'email': email,
+            'password': generate_password_hash(password),
+            'datetime': datetime.datetime.now()
+        }
+        self.admin.insert_one(admin)
+
+    def get_admin(self, email):
+        return self.admin.find_one({'email': email})
+    
+    def get_admins(self):
+        return self.admin.find()
+    
+    def remove_admin(self, email):
+        self.admin.delete_one({'email': email})
+    
+    def get_count(self):
+        return self.admin.count_documents({})
+    
+    def check_password(self, email, pswd):
+        return check_password_hash(self.admin.find_one({'email': email})['password'], pswd)
+    
+    def change_password(self, email, new_password):
+        self.admin.update_one({'email': email}, {'$set': {'password': generate_password_hash(new_password)}})
