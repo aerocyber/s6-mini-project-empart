@@ -181,12 +181,12 @@
         <option value="april">April</option>
         <option value="may">May</option>
         <option value="june">June</option>
-        <option value="july">july</option>
-        <option value="august">august</option>
-        <option value="september">september</option>
-        <option value="october">october</option>
-        <option value="november">november</option>
-        <option value="december">december</option>
+        <option value="july">July</option>
+        <option value="august">August</option>
+        <option value="september">September</option>
+        <option value="october">October</option>
+        <option value="november">November</option>
+        <option value="december">December</option>
       </select>
       <canvas id="admissionsChart"></canvas>
     </section>
@@ -217,83 +217,39 @@
   </div>
 
   <script>
-    // Initial hospital list
-    // const hospitals = [];
-
-
-    // Update hospital list UI
-    // function updateHospitalList() {
-    //   const hospitalListContainer = document.getElementById('hospitalListContainer');
-    //   hospitalListContainer.innerHTML = '';
-
-    //   hospitals.forEach((hospital, index) => {
-    //     const listItem = document.createElement('li');
-    //     listItem.className = 'hospital-item';
-
-    //     const hospitalName = document.createElement('span');
-    //     hospitalName.textContent = hospital;
-
-    //     const removeButton = document.createElement('button');
-    //     removeButton.textContent = 'Remove';
-    //     removeButton.onclick = () => removeHospital(index);
-
-    //     listItem.appendChild(hospitalName);
-    //     listItem.appendChild(removeButton);
-
-    //     hospitalListContainer.appendChild(listItem);
-    //   });
+    // async function getstats () {
+    //   const response = await fetch('/admin/get-stats');
+    //   const dataset = await response.json();
+    //   console.log(dataset);
+    //   return dataset;
     // }
 
-    // Add hospital event handler
-    // document.getElementById('addHospitalForm').addEventListener('submit', function (event) {
-    //   event.preventDefault();
-    //   const hospitalName = document.getElementById('hospitalNameInput').value.trim();
-
-    //   if (hospitalName) {
-    //     hospitals.push(hospitalName);
-    //     updateHospitalList();
-    //     document.getElementById('hospitalNameInput').value = ''; // Clear input field
-    //     alert('Hospital added successfully!');
-    //   } else {
-    //     alert('Please enter a hospital name.');
-    //   }
-    // });
-
-    // Remove hospital function
-    // function removeHospital(index) {
-    //   if (confirm(`Are you sure you want to remove "${hospitals[index]}"?`)) {
-    //     hospitals.splice(index, 1);
-    //     updateHospitalList();
-    //     alert('Hospital removed successfully!');
-    //   }
-    // }
-
-    // Initialize hospital list on page load
-    // updateHospitalList();
+    //   var data = getstats().then(dt => console.log(dt));
+      
 
     // Generate random weekly data for a month
-    function generateWeeklyData() {
-      return Array.from({ length: 4 }, () => Math.floor(Math.random() * 50) + 10);
-    }
+    // function generateWeeklyData() {
+    //   return Array.from({ length: 4 }, () => Math.floor(Math.random() * 50) + 10);
+    // }
 
     // Initial data for each month
     const admissionsDataByMonth = {
       all: {
         labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
-        data: [10, 15, 20, 25, 30, 40, 50, 55, 60, 65, 70, 75]
+        data: [{{stats.1}}, {{stats.2}}, {{stats.3}}, {{stats.4}}, {{stats.5}}, {{stats.6}}, {{stats.7}}, {{stats.8}}, {{stats.9}}, {{stats.10}}, {{stats.11}}, {{stats.12}}]
       },
-      january: generateWeeklyData(),
-      february: generateWeeklyData(),
-      march: generateWeeklyData(),
-      april: generateWeeklyData(),
-      may: generateWeeklyData(),
-      june: generateWeeklyData(),
-      july: generateWeeklyData(),
-      august: generateWeeklyData(),
-      september: generateWeeklyData(),
-      october: generateWeeklyData(),
-      november: generateWeeklyData(),
-      december: generateWeeklyData(),
+      january: [{{week.1}},{{ week.2}}, {{week.3}}, {{week.4}}],
+      february: [{{week.5}}, {{week.6}}, {{week.7}}, {{week.8}}],
+      march: [{{week.9}}, {{week.10}}, {{week.11}}, {{week.12}}],
+      april: [{{week.13}}, {{week.14}}, {{week.15}}, {{week.16}}],
+      may: [{{week.17}}, {{week.18}}, {{week.19}}, {{week.20}}],
+      june: [{{week.21}}, {{week.22}}, {{week.23}}, {{week.24}}],
+      july: [{{week.25}}, {{week.26}}, {{week.27}}, {{week.28}}],
+      august: [{{week.29}}, {{week.30}}, {{week.31}}, {{week.32}}],
+      september: [{{week.33}}, {{week.34}}, {{week.35}}, {{week.36}}],
+      october: [{{week.37}}, {{week.38}}, {{week.39}}, {{week.40}}],
+      november: [{{week.41}}, {{week.42}}, {{week.43}}, {{week.44}}],
+      december: [{{week.45}}, {{week.46}}, {{week.47}}, {{week.48}}]
     };
 
     // Create and render the admissions chart

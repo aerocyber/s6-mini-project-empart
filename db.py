@@ -115,6 +115,9 @@ class StaffDB:
     def get_count(self):
         return self.staff.count_documents({})
     
+    def get_count_by_hospital(self, hospital_id):
+        return self.staff.count_documents({'hospital_id': hospital_id})
+    
     def check_password(self, staff_email, pswd):
         return check_password_hash(self.staff.find_one({'email': staff_email})['password'], pswd)
     
@@ -256,6 +259,36 @@ class PublicRecordDB:
     
     def get_initiated_status_count_by_to_hospital(self, hospital_id):
         return self.public_record.count_documents({'to_hospital_id': hospital_id, 'status': 'initiated'})
+    
+    def get_monthly_stats(self): # TODO: Validate this
+        # Get the count of records for each month
+        return self.public_record.aggregate([
+            {
+                '$group': {
+                    '_id': {
+                        '$month': '$datetime'
+                    },
+                    'count': {
+                        '$sum': 1
+                    }
+                }
+            }
+        ])
+    
+    def get_weekly_stats(self):
+        # Get the count of records for each week in a month
+        return self.public_record.aggregate([
+            {
+                '$group': {
+                    '_id': {
+                        '$week': '$datetime'
+                    },
+                    'count': {
+                        '$sum': 1
+                    }
+                }
+            }
+        ])
 
 class GeneratedPatientID:
     def __init__(self):

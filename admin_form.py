@@ -6,7 +6,7 @@ import json
 from dotenv import load_dotenv
 from os import environ
 import datetime
-from db import HospitalDB, AdminDB
+from db import HospitalDB, AdminDB, PublicRecordDB
 from data import generate_jwt_token, verify_jwt_token
 import bson
 
@@ -41,10 +41,25 @@ def index():
         h = HospitalDB()
         # hospital_list = bson.json_util.dumps(h.get_hospitals())
         hospital_list = []
+        stats = PublicRecordDB().get_monthly_stats()
+        wstats = PublicRecordDB().get_weekly_stats()
+        # print(bson.json_util.dumps(stats))
+        s = {}
+        w = {}
+        for i in stats:
+            s[i['_id']] = i['count']
+        for i in range(1, 13):
+            if i not in s:
+                s[i] = 0
         for i in h.get_hospitals():
             hospital_list.append([i['name'], i['id']])
-        print(hospital_list)
-        return render_template('admin_dashboard.html', hospital_list=hospital_list)
+        
+        for i in wstats:
+            w[i['_id']] = i['count']
+        for i in range(1, 53):
+            if i not in w:
+                w[i] = 0
+        return render_template('admin_dashboard.html', hospital_list=hospital_list, stats = s, week = w)
     if request.cookies.get('JWT'):
         return redirect('/logout')
     return redirect('/admin/login')
@@ -138,5 +153,11 @@ def get_hospitals():
         return hospitals, 200
     return redirect('/logout')
 
-
-# TESTED ^
+# @admin_routing.route('/get-stats', methods=['GET'])
+# def get_stats():
+#     if verify_jwt_token(request.cookies.get('JWT'), request.cookies.get('username'), 'admin'):
+#         p = PublicRecordDB()
+#         stats = p.get_monthly_stats()
+#         print(bson.json_util.dumps(stats))
+#         return bson.json_util.dumps(stats), 200
+#     return redirect('/logout')

@@ -46,6 +46,8 @@ def index():
                 h.append([i['id'], i['name'], i['location']])
             if pid:
                 return render_template('staff_index.html', hospital_list=h, pid=pid)
+            if searcherr := request.args.get('searcherr'):
+                return render_template('staff_index.html', hospital_list=h, searcherr=searcherr)
             return render_template('staff_index.html', hospital_list=h)
         return redirect('/logout')
     return redirect('/staff/login')
@@ -187,7 +189,7 @@ def get_public_record_by_id(patient_id):
     
     pub = PrivateRecordDB()
     s = StaffDB()
-    hospital_id = s.get_staff(user['email'])['hospital_id']
+    # hospital_id = s.get_staff(user['email'])['hospital_id']
     record = pub.get_record(patient_id)
     # pub.complete_status(patient_id)
     return render_template('get_public_record.html', record=record)
@@ -230,7 +232,7 @@ def search():
     record = d.get_record(patient_id)
     if record:
         return redirect(f'/staff/get-public-record/{patient_id}')
-    return render_template('search.html', searcherr='Record not found')
+    return redirect(url_for('staff_form.index', searcherr='Record not found'))
 
 @staff_routing.route('/change-password', methods=['POST', 'GET'])
 def change_password():
@@ -266,3 +268,21 @@ def change_password():
             return render_template('new_pswd_staff.html')
         return redirect('/logout')
     return redirect('/staff/login')
+
+@staff_routing.route('/update-status', methods=['POST'])
+def update_status():
+    if request.method == 'POST':
+        db = StaffDB()
+        if not verify_jwt_token(request.cookies.get('JWT'), request.cookies.get('username'), 'staff'):
+            return 'Invalid token', 403
+        user = db.get_staff(request.cookies.get('username'))
+        if not user:
+            return 'Invalid token', 403
+        
+        patient_id = request.form['patient-id']
+        priv = PrivateRecordDB()
+        pub = PublicRecordDB()
+        priv.complete_status(patient_id)
+        pub.complete_status(patient_id)
+        return redirect('/staff')
+    return render_template('staff_index.html')

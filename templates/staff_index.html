@@ -252,6 +252,9 @@
                     <label for="search">Search:</label>
                     <input type="text" id="search" name="patient_id" required>
                     <button type="submit">Search</button>
+                    {% if searcherr %}
+                    <p style="color: red;">{{ searcherr }}</p>
+                    {% endif %}
                 </div>
         </div>
     </div>
@@ -301,6 +304,7 @@
 
         
         {% if pid %}
+        
         var qrcode = new QRCode(document.getElementById("img-qr"), {
             width: 200,
             height: 200,
@@ -324,6 +328,12 @@
                 link.click();
             }
         }
+
+        if (localStorage.getItem('pid') === '{{pid}}') {
+            document.getElementById('noti').style.display = 'none';
+        }
+
+        localStorage.setItem('pid', '{{pid}}');
 
         {% endif %}
 

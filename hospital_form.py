@@ -1,13 +1,9 @@
-import bson.json_util
 from flask import Blueprint, request, make_response, redirect, render_template
-from werkzeug.security import check_password_hash
-import random
 from dotenv import load_dotenv
 from os import environ
 import datetime
-from db import HospitalDB, StaffDB
-from data import generate_jwt_token, verify_jwt_token, decode_jwt_token
-import bson
+from db import HospitalDB, StaffDB, PublicRecordDB
+from data import generate_jwt_token, verify_jwt_token
 import re
 
 hospital_token_list = {}
@@ -32,7 +28,7 @@ def index():
             staff_list.append([i['name'], i['email']])
 
         print(staff_list)
-        return render_template('hospital_dashboard.html', hospital_name = hospital['name'], location = hospital['location'], stafflist=staff_list)
+        return render_template('hospital_dashboard.html', hospital_name = hospital['name'], location = hospital['location'], stafflist=staff_list, stats=stats(request.cookies.get('username')))
     if request.cookies.get('JWT'):
         return redirect('/logout')
     return redirect('/hospital/login')
@@ -153,3 +149,33 @@ def change_password():
             return render_template('new_pswd_hospital.html')
         return redirect('/logout')
     return redirect('/staff/login')
+
+@hospital_routes.route('/live-data')
+def live_data():
+    if request.cookies.get('JWT'):
+        if verify_jwt_token(request.cookies.get('JWT'), request.cookies.get('username'), 'hospital'):
+            h = HospitalDB()
+            p = PublicRecordDB()
+            hospital = h.get_hospital(request.cookies.get('username'))
+            hrecord = p.get_records(hospital['id'])
+            rec = {}
+            monthly = {}
+            for i in range(12):
+                for j in hrecord:
+                    month = datetime.datetime.strftime(hrecord[j]['date']).month # TODO: Check it
+                    count = hrecord[j]['count']
+                    monthly[month] = count
+            rec['monthly'] = monthly
+            return rec
+        return redirect('/logout')
+    return redirect('/hospital/login')
+
+def stats(staff_uname):
+    stats = {}
+    staff = StaffDB()
+    hospital = HospitalDB()
+    public = PublicRecordDB()
+    stats["transfer"] = public.get_complete_status_count_by_hospital(hospital_id=hospital.get_hospital(staff_uname)['id'])
+    stats["staff"] = staff.get_count_by_hospital(hospital_id=hospital.get_hospital(staff_uname)['id'])
+    stats["init"] = public.get_initiated_status_count_by_hospital(hospital_id=hospital.get_hospital(staff_uname)['id'])
+    return stats

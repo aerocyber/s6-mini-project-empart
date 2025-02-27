@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hospital Admin Dashboard</title>
+  <style>
+    /* Reset and Basic Styles */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Arial', sans-serif;
+      background-color: #f4f4f4;
+      padding: 40px;
+      color: #333;
+    }
+
+    /* Updated nav styles */
+    nav {
+      background: rgba(22, 18, 18, 0.2);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(15px);
+      width: 100%;
+      padding: 15px 0;
+      position: fixed;
+      top: 0;
+      z-index: 100;
+      transition: transform 0.3s ease-in-out, opacity 0.3s ease, top 0.3s ease;
+      transform: translateY(-100%); /* Hidden initially */
+
+      opacity: 1;
+      pointer-events: none;
+    }
+
+    nav.visible {
+      transform: translateY(20px);
+      opacity: 1;
+      pointer-events: all;
+      top: 0; /* Ensure it's positioned at the top */
+    }
+
+    nav a {
+      color: rgba(3, 2, 2, 0.9);
+      text-decoration: none;
+      padding: 12px 18px;
+      font-size: 18px;
+      font-weight: 600;
+      border-radius: 30px;
+      margin: 0 12px;
+      background: rgba(255, 255, 255, 0.1);
+      transition: background-color 0.3s ease, transform 0.2s ease;
+      box-shadow: inset 0 1px 3px rgba(255, 255, 255, 0.5), 0 5px 15px rgba(0, 0, 0, 0.1);
+    }
+
+    nav a:hover {
+      background: rgba(255, 255, 255, 0.4);
+      transform: translateY(40px);
+      color: black;
+      box-shadow: inset 0 2px 6px rgba(255, 255, 255, 0.4), 0 8px 20px rgba(0, 0, 0, 0.2);
+    }
+
+    nav a.active {
+      background: rgba(255, 255, 255, 0.5);
+      color: black;
+      box-shadow: 0 4px 15px rgba(76, 175, 80, 0.4);
+      font-weight: bold;
+    }
+
+    h1 {
+      text-align: center;
+      color: #333;
+      margin-bottom: 20px;
+    }
+
+    /* Container Styling */
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+      background-color: #ffffff;
+      padding: 40px;
+      border-radius: 10px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    /* Form Group Styling */
+    .form-group {
+      margin-top: 10px;
+      margin-bottom: 25px;
+    }
+
+    label {
+      display: block;
+      font-weight: bold;
+      margin-bottom: 5px;
+    }
+
+    input, textarea, select {
+      width: 100%;
+      padding: 10px;
+      font-size: 16px;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+    }
+
+    button {
+      background-color: #4CAF50;
+      color: white;
+      padding: 10px 15px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 16px;
+      margin-top: 10px;
+    }
+
+    button:hover {
+      background-color: #45a049;
+    }
+
+    /* Hospital List Styling */
+    .hospital-list {
+      margin-top: 30px;
+    }
+
+    .hospital-item {
+      background-color: #f9f9f9;
+      padding: 15px;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+      margin: 10px 0;
+    }
+
+    .hospital-details {
+      margin-bottom: 5px;
+      font-size: 14px;
+    }
+
+    .specialization-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .specialization-tag {
+      background-color: #4CAF50;
+      color: white;
+      padding: 5px 10px;
+      border-radius: 3px;
+      font-size: 12px;
+    }
+
+    /* Divider Styling */
+    hr {
+      border: 0;
+      border-top: 1px solid #ddd;
+      margin: 20px 0;
+    }
+  </style>
+</head>
+<body>
+  <h1>Hospital Admin Dashboard</h1>
+
+  <div class="container">
+    <h2>Add Hospital Details</h2>
+
+    <form id="hospitalForm" action="/admin/add-hospital" method="POST">
+      <!-- Hospital Name -->
+      <div class="form-group">
+        <label for="hospitalName">Hospital Name:</label>
+        <input type="text" name="name" id="hospitalName" placeholder="Enter hospital name" required>
+      </div>
+
+      <!-- Address -->
+      <div class="form-group">
+        <label for="hospitalAddress">Location:</label>
+        <input id="hospitalAddress" type="text" placeholder="Enter hospital Location" name="location" required>
+      </div>
+
+      <!-- Email -->
+      <div class="form-group">
+        <label for="email">Email:</label>
+        <input type="email" id="email" placeholder="Enter hospital email id" name="email" required>
+      </div>
+
+      <!-- Password -->
+      <div class="form-group">
+        <label for="password">Password:</label>
+        <input type="password" id="password" placeholder="Enter hospital password" required name="password">
+      </div>
+
+      <button type="submit">Add Hospital</button>
+    </form>
+
+    <hr>
+
+    <!-- Registered Hospitals List -->
+    <div class="hospital-list">
+      <h2>Registered Hospitals</h2>
+      <ul id="hospitalList">
+        {% for hospital in hospitals %}
+        <li>{{ hospital }} </li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+
+</body>
+</html>

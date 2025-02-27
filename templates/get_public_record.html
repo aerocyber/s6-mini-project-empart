@@ -79,6 +79,21 @@
                 overflow-x: auto;
             }
         }
+
+        button {
+            margin-top: 10px;
+            width: 50%;
+            margin-left: 25%;
+            margin-right: 25%;
+            text-align: center;
+            padding: 10px 20px;
+            background-color: #1a4b8c;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
     </style>
 </head>
 
@@ -141,6 +156,11 @@
         </table>
 
         <!-- TODO: Add a button to mark status as completed-->
+        {% if record.to_hospital_id != hospital_id %}
+         <form action="/staff/update-status" method="post">
+            <button name="patient-id" value="{{record.id}}">Mark as complete</button>
+         </form>
+         {% endif %}
          
     </div>
 </body>
